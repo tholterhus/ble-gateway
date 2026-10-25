@@ -62,9 +62,12 @@ spielen:
     pio run -t upload --upload-port ble-gateway.local
 
 (statt `.local` geht auch die IP-Adresse; Passwort = `OTA_PASSWORD`).
-Die Firmware stoppt beim Upload selbststaendig den BLE-Scan und startet
-danach neu. Einmal pro Firmware-Version empfiehlt sich trotzdem der
-Blick in den Serial-Monitor.
+**IP statt Hostname empfohlen:** PlatformIO waehlt nur bei einer IP
+automatisch das OTA-Protokoll (`espota`) — bei reinen Hostnamen
+(`.at.home` & Co.) versucht es sonst, den Namen als seriellen Port zu
+oeffnen und bricht ab. Die Firmware stoppt beim Upload selbststaendig
+den BLE-Scan und startet danach neu. Einmal pro Firmware-Version
+empfiehlt sich trotzdem der Blick in den Serial-Monitor.
 
 ## Was im MQTT ankommt
 
