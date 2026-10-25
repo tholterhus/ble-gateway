@@ -1,0 +1,4 @@
+.pio/
+.vscode/
+include/config.h
+include/config_mqtt.h

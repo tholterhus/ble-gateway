@@ -1,0 +1,44 @@
+#pragma once
+
+// ============================================================
+//  MQTT-Konfiguration
+//  Diese Datei einmal nach "config_mqtt.h" kopieren und ausfuellen.
+//  Sie bleibt bei Code-Updates unangetastet.
+// ============================================================
+
+// Broker-Verbindung (ioBroker mqtt-Adapter oder Mosquitto)
+#define MQTT_SERVER     "192.168.1.100"
+#define MQTT_PORT       1883
+#define MQTT_USER       ""          // leer lassen, wenn der Broker keine Auth verlangt
+#define MQTT_PASSWORD   ""
+
+// Basis-Pfad fuer die Govee-Sensoren, z. B. govee/H5075_1A2B/temperature
+#define MQTT_BASETOPIC  "govee"
+
+// Qingping-Geraete erscheinen unter eigenem Pfad,
+// z. B. qingping/Qingping_50C8/temperature|humidity|co2|pm25|pm10|rssi
+#define MQTT_TOPIC_QINGPING "qingping"
+
+// Oclean-Zahnbuersten erscheinen unter eigenem Pfad,
+// z. B. oclean/Oclean_X_9672/adv_pro_min|rssi
+#define MQTT_TOPIC_OCLEAN  "oclean"
+
+// Werte mit Retain-Flag publishen (der Broker cacht den letzten Wert)
+#define MQTT_RETAIN     true
+
+// Mindestabstand zwischen zwei Publishes pro Geraet in Sekunden
+// (der H5075 sendet ~2x/s; nur Aenderungen werden gemeldet)
+#define MIN_PUBLISH_INTERVAL_S  10
+
+// ---- Zahnbuersten-Beobachtung (Oclean) ----
+// Zaehlt BLE-Frames von 'Oclean'-Geraeten, Xiaomi-0xFEAF-Frames und
+// dem Oclean-MAC-Praefix. Je Buerste ein eigener Ordner (Modellname +
+// letzte 4 MAC-Stellen):
+//   oclean/adv_pro_min              Summe aller Buersten
+//   oclean/Oclean_X_9672/adv_pro_min  je Buerste (nur bei Aenderung)
+//   oclean/Oclean_X_9672/rssi
+// Messung 10/2026: Die Buersten senden im Standby ~11-22 Frames/min mit
+// eingefrorener Payload und aendern weder Payload noch Rate, wenn der
+// Motor laeuft - ein "wird benutzt"-Signal ist per passivem BLE-Mithoeren
+// nicht vorhanden (daher gibt es bewusst kein 'aktiv'-Topic).
+#define BRUSH_WINDOW_S          60  // Zaehlfenster in Sekunden

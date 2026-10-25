@@ -1,0 +1,30 @@
+#pragma once
+
+// ============================================================
+//  WLAN-Konfiguration
+//  Diese Datei einmal nach "config.h" kopieren und ausfuellen.
+//  Sie bleibt bei Code-Updates unangetastet.
+// ============================================================
+
+#define WIFI_SSID      "DEIN_WLAN_NAME"
+#define WIFI_PASSWORD  "DEIN_WLAN_PASSWORT"
+
+// Hostname im Netzwerk (DHCP)
+#define HOSTNAME       "ble-gateway"
+
+// Blaue Onboard-LED (GPIO 8, active-LOW) als Sende-Bestaetigung:
+//   1 = dunkel, blitzt kurz bei jedem Messwert-Publish
+//   0 = Pin hochohmig (LED aus)
+// Je nach Klon-Variante hat das Board diese LED gar nicht (dann
+// wirkungslos); die rote Power-LED ist immer fest an 3,3 V und
+// nicht steuerbar.
+#define LED_FEEDBACK   1
+
+// LED-Dauertest: 1 = GPIO 8 dauerhaft LOW (blaue LED leuchtet konstant).
+// Hat Vorrang vor LED_FEEDBACK. Wichtig: nach dem Flashen in der
+// PlatformIO-Konsole pruefen, dass der Upload wirklich durchlief.
+#define LED_TEST       0
+
+// Passwort fuer OTA-Updates (Firmware-Upload uebers Netzwerk).
+// Leer lassen = ohne Passwort (nicht empfohlen).
+#define OTA_PASSWORD   "aendern!"
