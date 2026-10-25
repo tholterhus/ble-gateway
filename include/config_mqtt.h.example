@@ -13,14 +13,18 @@
 #define MQTT_PASSWORD   ""
 
 // Basis-Pfad fuer die Govee-Sensoren, z. B. govee/H5075_1A2B/temperature
+// LEER SETZEN (""), um die Govee-Ueberwachung komplett zu deaktivieren
+// (dann entfallen auch die Topics govee/status und govee/version).
 #define MQTT_BASETOPIC  "govee"
 
 // Qingping-Geraete erscheinen unter eigenem Pfad,
 // z. B. qingping/Qingping_50C8/temperature|humidity|co2|pm25|pm10|rssi
+// LEER SETZEN (""), um den Qingping-Bereich zu deaktivieren.
 #define MQTT_TOPIC_QINGPING "qingping"
 
 // Oclean-Zahnbuersten erscheinen unter eigenem Pfad,
 // z. B. oclean/Oclean_X_9672/adv_pro_min|rssi
+// LEER SETZEN (""), um den Oclean-Bereich zu deaktivieren.
 #define MQTT_TOPIC_OCLEAN  "oclean"
 
 // Werte mit Retain-Flag publishen (der Broker cacht den letzten Wert)

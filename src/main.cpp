@@ -460,14 +460,21 @@ void mqttConnect() {
     const char *pass = (MQTT_PASSWORD[0] != '\0') ? MQTT_PASSWORD : nullptr;
 
     // Last Will: bei Ausfall des Gateways erscheint "offline" im Broker
+    // (MQTT_BASETOPIC leer -> kein Status-/Version-Topic, connect ohne LWT)
+    bool hasBase = strlen(MQTT_BASETOPIC) > 0;
     String statusTopic = String(MQTT_BASETOPIC) + "/status";
-    if (mqtt.connect(clientId.c_str(), user, pass,
-                     statusTopic.c_str(), 1, true, "offline")) {
+    bool ok = hasBase
+                  ? mqtt.connect(clientId.c_str(), user, pass,
+                                 statusTopic.c_str(), 1, true, "offline")
+                  : mqtt.connect(clientId.c_str(), user, pass);
+    if (ok) {
         Serial.printf("MQTT verbunden: %s:%d\n", MQTT_SERVER, MQTT_PORT);
-        mqtt.publish(statusTopic.c_str(), "online", true);
-        // Versionsnummer mit published (retained), damit sie im ioBroker ablesbar ist
-        mqtt.publish((String(MQTT_BASETOPIC) + "/version").c_str(),
-                     PROJECT_VERSION, true);
+        if (hasBase) {
+            mqtt.publish(statusTopic.c_str(), "online", true);
+            // Versionsnummer mit published (retained), damit sie im ioBroker ablesbar ist
+            mqtt.publish((String(MQTT_BASETOPIC) + "/version").c_str(),
+                         PROJECT_VERSION, true);
+        }
     } else {
         Serial.printf("MQTT fehlgeschlagen (rc=%d), wird weiter versucht ...\n",
                       mqtt.state());
@@ -511,7 +518,8 @@ class ScanCallbacks : public NimBLEAdvertisedDeviceCallbacks {
         }
 #endif
 
-        if (isToothbrushFrame(dev)) {
+        // MQTT_TOPIC_OCLEAN leer -> Buersten-Bereich deaktiviert
+        if (strlen(MQTT_TOPIC_OCLEAN) > 0 && isToothbrushFrame(dev)) {
 #if DEBUG_BR
             // Diagnose: alle 15 s Roh-Daten einer Buerste - damit suchen wir
             // ein Nutzungs-Signal in der Payload (Standby vs. Motor laeuft)
@@ -529,7 +537,8 @@ class ScanCallbacks : public NimBLEAdvertisedDeviceCallbacks {
         }
 
         // --- Qingping Air Monitor: Service Data an UUID 0xFDCD ---
-        if (dev->haveServiceData()) {
+        // MQTT_TOPIC_QINGPING leer -> Bereich deaktiviert
+        if (strlen(MQTT_TOPIC_QINGPING) > 0 && dev->haveServiceData()) {
             std::string sd = dev->getServiceData(NimBLEUUID((uint16_t)0xFDCD));
             if (sd.size() >= 11 && ((uint8_t)sd[0] & 0x7F) == 0x08) {
                 DeviceState r;
@@ -552,6 +561,8 @@ class ScanCallbacks : public NimBLEAdvertisedDeviceCallbacks {
         }
 
         // --- Govee H5075/H5077 ---
+        // MQTT_BASETOPIC leer -> Bereich deaktiviert
+        if (strlen(MQTT_BASETOPIC) == 0) return;
         // Format FW 1.04.x: Manufacturer Data "88 EC" (Govee) + 6 Bytes
         // [00, T2, T1, T0, Batt, 00]. Aeltere Firmwares legen die 6 Bytes
         // stattdessen als Service Data an die UUID 0xEC88 - beides akzeptieren.
@@ -692,7 +703,7 @@ void setup() {
 
     prefs.begin("govee", false);
     loadKnownDevices();
-    loadBrushes();
+    if (strlen(MQTT_TOPIC_OCLEAN) > 0) loadBrushes();
 
     connectWiFi();
     mqtt.setServer(MQTT_SERVER, MQTT_PORT);
@@ -741,7 +752,7 @@ void loop() {
     if (!mqtt.connected()) mqttConnect();
     mqtt.loop();
     ArduinoOTA.handle();
-    brushPublish();
+    if (strlen(MQTT_TOPIC_OCLEAN) > 0) brushPublish();
     publishPending();
     delay(20);
 }

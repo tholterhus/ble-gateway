@@ -88,7 +88,12 @@ man unter `govee/version`.
 ## Einstellungen
 
 - `include/config.h` — WLAN, Hostname, LED, OTA-Passwort
-- `include/config_mqtt.h` — Broker, Topic-Pfade, Sende-Intervalle
+- `include/config_mqtt.h` — Broker, Topic-Pfade, Sende-Intervalle.
+  **Jeder Monitoring-Bereich laesst sich einzeln abschalten:** den
+  zugehoerigen Topic-Pfad (`MQTT_BASETOPIC`, `MQTT_TOPIC_QINGPING`,
+  `MQTT_TOPIC_OCLEAN`) auf `""` setzen — dann wird der Bereich
+  komplett uebersprungen (auch keine NVS-Eintraege, kein Funkmuelleim
+  im Log). Standard: alle drei aktiv.
 - `src/main.cpp` (oberster Block) — Debug-Logzeilen einzeln
   zuschaltbar: `[ADV]` (alle BLE-Geraete im Funkraum), `[BLE-Stat]`
   (Empfangszahlen), `[QP-Roh]`/`[BR-Roh]` (Rohdaten von Qingping/
