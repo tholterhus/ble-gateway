@@ -1,0 +1,12 @@
+; ============================================================
+;  Vorlage: Diese Datei nach "platformio_local.ini" kopieren und
+;  das OTA-Passwort eintragen. Die Datei ist via .gitignore vom
+;  Repo ausgeschlossen.
+;
+;  Achtung: Muss mit OTA_PASSWORD in include/config.h
+;  uebereinstimmen - das Passwort der LAUFENDEN Firmware entscheidet
+;  beim OTA-Upload, eine Aenderung wird erst mit dem naechsten
+;  erfolgreichen Upload aktiv.
+; ============================================================
+[env:esp32c3_supermini]
+upload_flags = --auth=DEIN_OTA_PASSWORT

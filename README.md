@@ -65,9 +65,17 @@ spielen:
 **IP statt Hostname empfohlen:** PlatformIO waehlt nur bei einer IP
 automatisch das OTA-Protokoll (`espota`) — bei reinen Hostnamen
 (`.at.home` & Co.) versucht es sonst, den Namen als seriellen Port zu
-oeffnen und bricht ab. Die Firmware stoppt beim Upload selbststaendig
-den BLE-Scan und startet danach neu. Einmal pro Firmware-Version
-empfiehlt sich trotzdem der Blick in den Serial-Monitor.
+oeffnen und bricht ab.
+
+Das OTA-Passwort kommt nicht interaktiv, sondern aus der **lokalen,
+nicht oeffentlichen** Datei `platformio_local.ini` (Vorlage:
+`platformio_local.ini.example` — kopieren, Passwort eintragen). Sie
+muss mit `OTA_PASSWORD` in `include/config.h` uebereinstimmen — und
+zwar mit dem Passwort der **laufenden** Firmware: Eine Aenderung wird
+erst mit dem naechsten erfolgreichen Upload aktiv. Die Firmware stoppt
+beim Upload selbststaendig den BLE-Scan und startet danach neu. Einmal
+pro Firmware-Version empfiehlt sich trotzdem der Blick in den
+Serial-Monitor.
 
 ## Was im MQTT ankommt
 
