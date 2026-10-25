@@ -6,8 +6,9 @@ Smarthome — **ohne Cloud, ohne App, ohne Kopplung**. Einmal
 konfigurieren, an den USB-Stecker, fertig.
 
 **Version: siehe [PlattformIO-Flag](platformio.ini) (`PROJECT_VERSION`,
-derzeit 1.0.0)** — erscheint beim Start im Serial-Monitor und als
-retained Topic `govee/version` im MQTT-Broker.
+derzeit 1.1.0)** — erscheint beim Start im Serial-Monitor und als
+retained Topic `govee/version` im MQTT-Broker. Aenderungshistorie:
+[CHANGELOG.md](CHANGELOG.md).
 
 ## Was wird ausgelesen?
 
