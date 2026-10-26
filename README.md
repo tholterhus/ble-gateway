@@ -20,10 +20,13 @@ retained Topic `govee/version` im MQTT-Broker. Aenderungshistorie:
 
 `XXXX` = letzte 4 Hex-Stellen der MAC-Adresse (Govee benennt seine
 Geraete in der App genauso). Geraete werden automatisch erkannt und
-ihre Liste im NVS-Flash persistiert — sie ueberlebt Neustart und
-Reflash. Neue Geraete dieser Familien erscheinen ohne Aenderung am
-Code; unbekannte BLE-Geraete siehst du mit den Debug-Logschaltern
-(siehe unten).
+ihre Liste im NVS persistiert — Espressif-Dialekt fuer den
+nichtfluechtigen Key-Value-Speicher im internen Flash (im Arduino-
+Framework hinter der `Preferences`-Bibliothek; mit NVMe hat das so viel
+zu tun wie der SuperMini mit einem Rechenzentrum). Die Liste ueberlebt
+Neustart und Reflash. Neue Geraete dieser Familien erscheinen ohne
+Aenderung am Code; unbekannte BLE-Geraete siehst du mit den
+Debug-Logschaltern (siehe unten).
 
 Bekannte Grenze (10/2026 gemessen): Die Oclean-Buersten senden im
 Standby und beim Putzen identische Frames — ein echtes "wird gerade
