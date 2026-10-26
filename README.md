@@ -61,7 +61,13 @@ Code ersetzen — deine beiden `config`-Dateien bleiben unberuehrt.
 ## OTA: Updates ohne USB-Kabel
 
 Nach dem ersten USB-Flash laesst sich jede neue Firmware uebers Netz
-spielen:
+spielen — am einfachsten mit dem beiliegenden Skript (loest den
+Geraetenamen auf und ruft PlatformIO mit der IP auf):
+
+    ./ota.sh               # Geraet automatisch suchen
+    ./ota.sh 192.168.1.50  # oder explizit per IP
+
+Direkt per PlatformIO:
 
     pio run -t upload --upload-port ble-gateway.local
 
