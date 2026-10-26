@@ -1,62 +1,110 @@
 # BLE-Gateway (Govee | Qingping | Oclean)
 
-Ein ESP32-C3 (z. B. der 5-Euro-"SuperMini") lauscht passiv den BLE-
-Advertisements im Haus zu und publisht alles per MQTT in dein
-Smarthome — **ohne Cloud, ohne App, ohne Kopplung**. Einmal
-konfigurieren, an den USB-Stecker, fertig.
-
-**Version: siehe [PlattformIO-Flag](platformio.ini) (`PROJECT_VERSION`,
-derzeit 1.1.0)** — erscheint beim Start im Serial-Monitor und als
-retained Topic `govee/version` im MQTT-Broker. Aenderungshistorie:
+Ein ESP32-C3 (z. B. der 5-Euro-"SuperMini") hoert die BLE-Advertisements
+im Haus ab und gibt die Daten per MQTT an dein Smarthome weiter.
+Version: siehe [PlattformIO-Flag](platformio.ini) (`PROJECT_VERSION`,
+derzeit 1.1.0) — erscheint beim Start im Serial-Monitor und als
+retained Topic `govee/version`. Aenderungshistorie:
 [CHANGELOG.md](CHANGELOG.md).
 
-## Was wird ausgelesen?
+## Worum geht es?
 
-| Geraet | Daten | MQTT-Pfad |
-|---|---|---|
-| Govee H5075 / H5077 (Thermo-/Hygrometer) | Temperatur, Luftfeuchte, Batterie, RSSI | `govee/H5075_XXXX/...` |
-| Qingping Air Monitor Lite | Temperatur, Feuchte, CO₂, PM2.5, PM10, RSSI | `qingping/Qingping_XXXX/...` |
-| Oclean-Zahnbuersten | Frames/min + RSSI je Buerste (Aktivitaets-/Anwesenheitssignal) | `oclean/<Modell_XXXX>/...` |
+Viele Guenstige Geraete funken ihren Zustand schon unablaessig ins
+Funknetz — als BLE-Advertisement, unabhaengig von der App des
+Herstellers. Dieses Projekt lauscht dieser Funkerei passiv zu: Das
+Gateway **koppelt sich nie mit einem Geraet**, braucht keine App, keine
+Cloud und keinen Account. Es dekodiert die Advertisements und legt die
+Werte als MQTT-Topics in dein Smarthome (ioBroker, Home Assistant,
+FHEM, openHAB ...). Ein 5-Euro-Board, ein USB-Stecker, fertig.
 
-`XXXX` = letzte 4 Hex-Stellen der MAC-Adresse (Govee benennt seine
-Geraete in der App genauso). Geraete werden automatisch erkannt und
-ihre Liste im NVS persistiert — Espressif-Dialekt fuer den
-nichtfluechtigen Key-Value-Speicher im internen Flash (im Arduino-
-Framework hinter der `Preferences`-Bibliothek; mit NVMe hat das so viel
-zu tun wie der SuperMini mit einem Rechenzentrum). Die Liste ueberlebt
-Neustart und Reflash. Neue Geraete dieser Familien erscheinen ohne
-Aenderung am Code; unbekannte BLE-Geraete siehst du mit den
-Debug-Logschaltern (siehe unten).
+## Was brauche ich?
 
-Bekannte Grenze (10/2026 gemessen): Die Oclean-Buersten senden im
-Standby und beim Putzen identische Frames — ein echtes "wird gerade
-geputzt"-Signal existiert per passivem Mithoeren nicht, daher gibt es
-bewusst kein "aktiv"-Topic.
+- **Board:** ESP32-C3 (z. B. SuperMini, DevKitM-1) — ~5 Euro
+- **USB-Kabel mit Datenleitung** (nicht nur Ladekabel) und 5-V-Netzteil
+- **Software:** VSCode mit [PlatformIO-Erweiterung](https://platformio.org/install/ide?install=vscode)
+- **Netz:** 2,4-GHz-WLAN (der ESP32-C3 kann **kein** 5 GHz) und einen
+  MQTT-Broker (ioBroker mqtt-Adapter, Mosquitto, Home Assistant ...)
+- **Geraete (optional, je nach Interesse):** Govee H5075/H5077,
+  Qingping Air Monitor Lite, Oclean-Zahnbuersten
+- **Nicht noetig:** Cloud-Zugang, Hersteller-App, Hub, Guthaben
+
+## Was kann es?
+
+- **Passives Mitlesen:** keine Kopplung mit den Geraeten; sie senden
+  ohnehin, das Gateway hoert nur zu. Die Hersteller-App bleibt
+  parallel nutzbar.
+- **Automatische Geraeteerkennung:** neue Geraete dieser Familien
+  erscheinen ohne Code-Aenderung; die Liste wird im Flash persistiert
+  (ueberlebt Neustart und Reflash).
+- **Effizientes MQTT:** Werte nur bei Aenderung, mit Retain, Last Will
+  (`govee/status`) und Versions-Topic (`govee/version`).
+- **Modular:** jeder Geraete-Bereich (Govee / Qingping / Oclean) laesst
+  sich per Config einzeln abschalten.
+- **OTA:** Firmware-Updates uebers WLAN, ohne USB-Kabel.
+- **Ehrliche Grenzen** (gemessen, nicht geraten): die Oclean-Buersten
+  unterscheiden Standby und Nutzung weder in der Payload noch in der
+  Frame-Rate — es gibt ein Aktivitaets-/Anwesenheitssignal, aber kein
+  "wird geputzt". Govee/Qingping liefern dagegen vollwertige
+  Messwerte.
+
+| Geraet | Daten |
+|---|---|
+| Govee H5075 / H5077 | Temperatur, Luftfeuchte, Batterie, RSSI |
+| Qingping Air Monitor Lite | Temperatur, Feuchte, CO₂, PM2.5, PM10, RSSI |
+| Oclean-Zahnbuersten | Frames/min + RSSI je Buerste |
 
 ## Schnellstart (ca. 10 Minuten)
 
-**Voraussetzungen:** VSCode mit [PlatformIO-Erweiterung](https://platformio.org/install/ide?install=vscode),
-ein ESP32-C3-Board (SuperMini, DevKitM o. ae.), USB-Datenkabel,
-2,4-GHz-WLAN (der ESP32-C3 kann **kein** 5 GHz!).
-
 1. Dieses Repository klonen oder herunterladen und den Ordner in
-   VSCode oeffnen (PlatformIO erkennt `platformio.ini` automatisch und
-   laedt beim ersten Build die Toolchain — das dauert einmalig ein paar
-   Minuten).
+   VSCode oeffnen (PlatformIO laedt beim ersten Build die Toolchain —
+   einmalig ein paar Minuten).
 2. **`include/config.h.example` nach `include/config.h` kopieren** und
    ausfuellen: WLAN-Name, WLAN-Passwort, OTA-Passwort.
 3. **`include/config_mqtt.h.example` nach `include/config_mqtt.h`
    kopieren** und ausfuellen: Adresse/Port/Login deines MQTT-Brokers
-   (ioBroker mqtt-Adapter, Mosquitto, Home Assistant ...).
-4. ESP per USB anstecken, in der PlatformIO-Leiste auf **Upload** (→)
-   klicken, danach den **Serial Monitor** oeffnen (115200 Baud).
-   Dort erscheinen Versionsnummer, WLAN- und MQTT-Status und alle
-   automatisch erkannten Geraete.
-5. Im MQTT-Broker die Topics ansehen: `govee/#`, `qingping/#`,
-   `oclean/#`.
+   sowie die Topic-Pfae (Bereiche mit leerem Namen = aus).
+4. ESP per USB anstecken, in der PlatformIO-Leiste **Upload** (→)
+   klicken, danach **Serial Monitor** (115200 Baud): dort erscheinen
+   Versionsnummer, WLAN-/MQTT-Status und alle erkannten Geraete.
+5. Im MQTT-Broker die Topics abonnieren: `govee/#`, `qingping/#`,
+   `oclean/#` (bzw. nur die aktivierten Bereiche).
 
-Update-Hinweis: Bei neuen Versionen dieses Repos einfach den geaenderten
-Code ersetzen — deine beiden `config`-Dateien bleiben unberuehrt.
+Update-Hinweis: Bei neuen Versionen dieses Repos den Code ersetzen —
+deine beiden `config`-Dateien bleiben unberuehrt.
+
+## Was im MQTT ankommt?
+
+| Topic | Inhalt |
+|---|---|
+| `govee/status` | `online`/`offline` (Last Will des Gateways) |
+| `govee/version` | Firmware-Version (retained) |
+| `govee/H5075_XXXX/temperature` | Grad C |
+| `govee/H5075_XXXX/humidity` | rel. Feuchte % |
+| `govee/H5075_XXXX/battery` | Batterie % |
+| `govee/H5075_XXXX/rssi` | Empfangsstaerke dBm |
+| `qingping/Qingping_XXXX/temperature|humidity|co2|pm25|pm10|rssi` | Luftdaten |
+| `oclean/adv_pro_min` | Summe aller Buersten-Frames (60-s-Fenster) |
+| `oclean/<Modell_XXXX>/adv_pro_min` | Frames je Buerste (nur bei Aenderung) |
+| `oclean/<Modell_XXXX>/rssi` | Empfangsstaerke je Buerste |
+
+`XXXX` = letzte 4 Hex-Stellen der MAC-Adresse (Govee benennt seine
+Geraete in der App genauso). Alle Werte werden mit Retain gepublished
+und nur bei Aenderung gesendet (Batterie/RSSI laufen passiv mit).
+
+## Einstellungen
+
+- `include/config.h` — WLAN, Hostname, LED, OTA-Passwort
+- `include/config_mqtt.h` — Broker, Topic-Pfae, Sende-Intervalle.
+  **Jeder Monitoring-Bereich laesst sich einzeln abschalten:** den
+  zugehoerigen Topic-Pfad (`MQTT_BASETOPIC`, `MQTT_TOPIC_QINGPING`,
+  `MQTT_TOPIC_OCLEAN`) auf `""` setzen — dann wird der Bereich
+  komplett uebersprungen (auch keine NVS-Eintraege, kein Logspam).
+  Standard: alle drei aktiv.
+- `src/main.cpp` (oberster Block) — Debug-Logzeilen einzeln
+  zuschaltbar: `[ADV]` (alle BLE-Geraete im Funkraum), `[BLE-Stat]`
+  (Empfangszahlen), `[QP-Roh]`/`[BR-Roh]` (Rohdaten von Qingping/
+  Buersten), `MQTT ->` (jeder Publish). Standard: alles aus.
+- `platformio.ini` — Board, Version (`PROJECT_VERSION`), Partitionen
 
 ## OTA: Updates ohne USB-Kabel
 
@@ -85,41 +133,9 @@ zwar mit dem Passwort der **laufenden** Firmware: Eine Aenderung wird
 erst mit dem naechsten erfolgreichen Upload aktiv. Die Firmware stoppt
 beim Upload selbststaendig den BLE-Scan und startet danach neu. Einmal
 pro Firmware-Version empfiehlt sich trotzdem der Blick in den
-Serial-Monitor.
-
-## Was im MQTT ankommt
-
-| Topic | Inhalt |
-|---|---|
-| `govee/status` | `online`/`offline` (Last Will des Gateways) |
-| `govee/version` | Firmware-Version (retained) |
-| `govee/H5075_XXXX/temperature` | Grad C |
-| `govee/H5075_XXXX/humidity` | rel. Feuchte % |
-| `govee/H5075_XXXX/battery` | Batterie % |
-| `govee/H5075_XXXX/rssi` | Empfangsstärke dBm |
-| `qingping/Qingping_XXXX/temperature|humidity|co2|pm25|pm10|rssi` | Luftdaten |
-| `oclean/adv_pro_min` | Summe aller Buersten-Frames (60-s-Fenster) |
-| `oclean/<Modell_XXXX>/adv_pro_min` | Frames je Buerste (nur bei Aenderung) |
-| `oclean/<Modell_XXXX>/rssi` | Empfangsstärke je Buerste |
-
-Alle Werte werden mit Retain gepublished und nur bei Aenderung
-gesendet (Batterie/RSSI laufen passiv mit). Die Versionsnummer findet
-man unter `govee/version`.
-
-## Einstellungen
-
-- `include/config.h` — WLAN, Hostname, LED, OTA-Passwort
-- `include/config_mqtt.h` — Broker, Topic-Pfade, Sende-Intervalle.
-  **Jeder Monitoring-Bereich laesst sich einzeln abschalten:** den
-  zugehoerigen Topic-Pfad (`MQTT_BASETOPIC`, `MQTT_TOPIC_QINGPING`,
-  `MQTT_TOPIC_OCLEAN`) auf `""` setzen — dann wird der Bereich
-  komplett uebersprungen (auch keine NVS-Eintraege, kein Funkmuelleim
-  im Log). Standard: alle drei aktiv.
-- `src/main.cpp` (oberster Block) — Debug-Logzeilen einzeln
-  zuschaltbar: `[ADV]` (alle BLE-Geraete im Funkraum), `[BLE-Stat]`
-  (Empfangszahlen), `[QP-Roh]`/`[BR-Roh]` (Rohdaten von Qingping/
-  Buersten), `MQTT ->` (jeder Publish). Standard: alles aus.
-- `platformio.ini` — Board, Version (`PROJECT_VERSION`), Partitionen
+Serial-Monitor. Bei "Error Uploading" mitten im Transfer: nochmal
+versuchen (z. B. wenn parallel ein zweiter OTA-Client lief) — der ESP
+faehrt bei Abbruch automatisch mit der alten Firmware weiter.
 
 ## Fehlerbehebung
 
@@ -147,11 +163,12 @@ man unter `govee/version`.
 
 Getestet mit einem ESP32-C3 SuperMini (Klon). Der Code arbeitet mit
 jedem ESP32-C3-Board mit Bluetooth; `platformio.ini` passt ggf. das
-`board`- Feld an. Wichtige Erfahrungswerte sind im Code dokumentiert:
+`board`-Feld an. Wichtige Erfahrungswerte sind im Code dokumentiert:
 TX-Leistungsfalle der SuperMinis, LED-Varianten, Partitionstabelle fuer
 OTA, und die BLE-Formate von Govee (FW 1.04.x: Manufacturer Data `88 EC`,
 aelter: Service Data UUID 0xEC88) und Qingping (Service Data UUID 0xFDCD,
-TLV-Struktur, PM unter Typ 0x12).
+TLV-Struktur, PM unter Typ 0x12). Details und Messwerte:
+[CHANGELOG.md](CHANGELOG.md).
 
 ## Lizenz
 
