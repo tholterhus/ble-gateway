@@ -1,6 +1,6 @@
 // govee-ble-gateway
 // -----------------
-// Empfaengt die BLE-Advertisements eines Govee H5075/H5077
+// Empfängt die BLE-Advertisements eines Govee H5075/H5077
 // passiv (keine Verbindung, keine App) und publisht Temperatur,
 // Luftfeuchte, Batterie und RSSI per MQTT.
 //
@@ -18,13 +18,13 @@
 #include "config_mqtt.h"
 
 // ================= Debug-Schalter (serielles Log) =================
-// 0 = aus, 1 = an. Aktuell ist nur [BR-Roh] an, um der Zahnbuersten-
+// 0 = aus, 1 = an. Aktuell ist nur [BR-Roh] an, um der Zahnbürsten-
 // Payload ein Nutzungs-Signal (Standby vs. Motor) zu entlocken.
-#define DEBUG_ADV   0   // [ADV] Erstkontakt/Rohdaten je BLE-Geraet
+#define DEBUG_ADV   0   // [ADV] Erstkontakt/Rohdaten je BLE-Gerät
 #define DEBUG_STAT  0   // [BLE-Stat] Empfangs-Zaehler alle 10 s
 #define DEBUG_QP    0   // [QP-Roh] Qingping-Rohframe alle 30 s
 #define DEBUG_VAL   0   // "MQTT -> ..."-Zeile bei jedem Publish
-#define DEBUG_BR    0   // [BR-Roh] Buersten-Rohframe alle 15 s (Payload-Analyse)
+#define DEBUG_BR    0   // [BR-Roh] Bürsten-Rohframe alle 15 s (Payload-Analyse)
 // ==================================================================
 
 // Versionsnummer kommt aus platformio.ini (-DPROJECT_VERSION='"x.y.z"')
@@ -38,7 +38,7 @@
 WiFiClient   wifiClient;
 PubSubClient mqtt(wifiClient);
 SemaphoreHandle_t stateMutex;
-Preferences  prefs;   // NVS: persistente Geraete-Liste
+Preferences  prefs;   // NVS: persistente Geräte-Liste
 
 // ------------------------------------------------------------
 // Govee-Dekodierung (Format H5072/H5075, s. ble_monitor)
@@ -78,7 +78,7 @@ bool decodeGovee(const uint8_t *d, GoveeReading &out) {
 }
 
 // ------------------------------------------------------------
-// Zustand pro gefundenem Geraet
+// Zustand pro gefundenem Gerät
 // ------------------------------------------------------------
 enum DeviceKind { DEV_GOVEE = 0, DEV_QINGPING = 1 };
 
@@ -100,7 +100,7 @@ struct DeviceState {
 std::map<std::string, DeviceState> devices;  // Schluessel: MAC-String
 
 // ------------------------------------------------------------
-// BLE-Diagnose: Empfangs-Zaehler + Erstkontakt-Log je Geraet
+// BLE-Diagnose: Empfangs-Zaehler + Erstkontakt-Log je Gerät
 // ------------------------------------------------------------
 volatile uint32_t advCount = 0, sdCount = 0, mfgCount = 0;
 std::set<std::string> loggedMacs;
@@ -119,12 +119,12 @@ String hexDump(const std::string &s, size_t maxBytes = 24) {
 }
 
 // ------------------------------------------------------------
-// Zahnbuersten-Beobachtung (Oclean): Frames von Geraeten mit
+// Zahnbürsten-Beobachtung (Oclean): Frames von Geräten mit
 // "Oclean" im Namen, Xiaomi-0xFEAF-Frames (Oclean = Xiaomi-
-// Ecosystem, bei uns die N0xx-Buersten) und dem beobachteten
-// Oclean-MAC-Praefix. Je Buerste ein eigener MQTT-Ordner.
+// Ecosystem, bei uns die N0xx-Bürsten) und dem beobachteten
+// Oclean-MAC-Praefix. Je Bürste ein eigener MQTT-Ordner.
 // ------------------------------------------------------------
-#define BRUSH_TS_SIZE 32   // Ringpuffer: max. Frames je Buerste im Fenster
+#define BRUSH_TS_SIZE 32   // Ringpuffer: max. Frames je Bürste im Fenster
 
 struct BrushState {
     std::string name;                // beworbener Name (Modell)
@@ -181,7 +181,7 @@ void loadBrushes() {
     String reg = prefs.getString("brushes", "");
     if (!reg.length()) return;
 
-    Serial.println("Bekannte Buersten (aus NVS):");
+    Serial.println("Bekannte Bürsten (aus NVS):");
     int start = 0;
     while (start < (int)reg.length()) {
         int comma = reg.indexOf(',', start);
@@ -233,11 +233,11 @@ void brushPublish() {  // loop-Kontext
     }
     xSemaphoreGive(stateMutex);
 
-    // neue/veraenderte Eintraege dauerhaft sichern (nur bei tatsaechlicher Aenderung)
+    // neue/veränderte Eintraege dauerhaft sichern (nur bei tatsaechlicher Änderung)
     if (reg != lastWrittenReg && reg.length()) {
         lastWrittenReg = reg;
         prefs.putString("brushes", reg);
-        Serial.println("Buersten-Liste im NVS aktualisiert.");
+        Serial.println("Bürsten-Liste im NVS aktualisiert.");
     }
 
     char buf[12];
@@ -259,7 +259,7 @@ void brushPublish() {  // loop-Kontext
     firstRun = false;
 }
 
-// Geraete-ID "H5075_XXXX" bzw. "Qingping_XXXX" = letzte 4 Hex-Stellen
+// Geräte-ID "H5075_XXXX" bzw. "Qingping_XXXX" = letzte 4 Hex-Stellen
 // der MAC (Govee-Benennung wie die Govee-App)
 String deviceIdFor(const std::string &mac, uint8_t kind) {
     std::string tail = mac.substr(mac.size() - 5);
@@ -276,8 +276,8 @@ String baseTopicFor(const std::string &mac, uint8_t kind) {
 }
 
 // ------------------------------------------------------------
-// Persistente Geraete-Liste im NVS (ueberlebt Neustart & Reflash).
-// Alle Geraete in einem Key: "mac=H5075_XXXX,mac=H5075_YYYY,..."
+// Persistente Geräte-Liste im NVS (überlebt Neustart & Reflash).
+// Alle Geräte in einem Key: "mac=H5075_XXXX,mac=H5075_YYYY,..."
 // Es wird nur beim ERSTMALIGEN Auffinden geschrieben (kein Verschleiss).
 // ------------------------------------------------------------
 void persistNewDevices() {  // nur mit gehaltener stateMutex aufrufen
@@ -295,14 +295,14 @@ void persistNewDevices() {  // nur mit gehaltener stateMutex aufrufen
     String old = prefs.getString("devices", "");
     if (old.length()) reg = old + "," + reg;
     prefs.putString("devices", reg);
-    Serial.printf("Neues Geraet im NVS gespeichert: %s\n", reg.c_str());
+    Serial.printf("Neues Gerät im NVS gespeichert: %s\n", reg.c_str());
 }
 
 void loadKnownDevices() {
     String reg = prefs.getString("devices", "");
     if (!reg.length()) return;
 
-    Serial.println("Bekannte Geraete (aus NVS):");
+    Serial.println("Bekannte Geräte (aus NVS):");
     int start = 0;
     while (start < (int)reg.length()) {
         int comma = reg.indexOf(',', start);
@@ -355,7 +355,7 @@ bool decodeQingping(const std::string &sd, DeviceState &out) {
                 if (len >= 1) { out.battery = (float)(v[0] & 0x7F); found = true; }
                 break;
             case 0x07:  // aeltere Qingping-Modelle
-            case 0x12:  // Air Monitor Lite (durch Roh-Frames bestaetigt)
+            case 0x12:  // Air Monitor Lite (durch Roh-Frames bestätigt)
                 if (len >= 4) {
                     out.pm25 = v[0] | (v[1] << 8);
                     out.pm10 = v[2] | (v[3] << 8);
@@ -379,26 +379,26 @@ bool decodeQingping(const std::string &sd, DeviceState &out) {
 }
 
 // ------------------------------------------------------------
-// Lesung in den Geraete-Zustand uebernehmen (thread-sicher)
+// Lesung in den Geräte-Zustand übernehmen (thread-sicher)
 // ------------------------------------------------------------
 void applyReading(const std::string &mac, DeviceKind kind, const DeviceState &r) {
     xSemaphoreTake(stateMutex, portMAX_DELAY);
     bool wasNew = (devices.find(mac) == devices.end());
     DeviceState &st = devices[mac];
-    if (wasNew) st.persisted = false;  // neu -> beim naechsten publishPending im NVS sichern
+    if (wasNew) st.persisted = false;  // neu -> beim nächsten publishPending im NVS sichern
     st.kind = kind;
     st.rssi = r.rssi;
 
-    // Nur echte Messwerte loesen ein MQTT-Update aus. Batterie- und
-    // RSSI-Aenderungen werden stillschweigend uebernommen und laufen mit
-    // der naechsten Messwert-Aenderung (oder dem Herzschlag) mit.
+    // Nur echte Messwerte lösen ein MQTT-Update aus. Batterie- und
+    // RSSI-Änderungen werden stillschweigend übernommen und laufen mit
+    // der nächsten Messwert-Änderung (oder dem Herzschlag) mit.
     bool changed = (r.temperature != st.temperature) ||
                    (r.humidity    != st.humidity) ||
                    (r.co2         != st.co2) ||
                    (r.pm25        != st.pm25) ||
                    (r.pm10        != st.pm10) ||
                    (r.light       != st.light);
-    // Nur echte Messwert-Aenderungen (oder die erste Lesung) publizieren.
+    // Nur echte Messwert-Änderungen (oder die erste Lesung) publizieren.
     if (changed || isnan(st.temperature)) {
         st.temperature = r.temperature;
         st.humidity    = r.humidity;
@@ -422,8 +422,8 @@ void connectWiFi() {
     WiFi.setHostname(HOSTNAME);
     WiFi.mode(WIFI_STA);
     WiFi.setAutoReconnect(true);
-    // C3 SuperMini: Standard-TX-Leistung (20 dBm) ueberfordert die kleine
-    // Stromversorgung -> Radio "hoert" nichts (leere Scan-Liste). Bekannter Fix:
+    // C3 SuperMini: Standard-TX-Leistung (20 dBm) überfordert die kleine
+    // Stromversorgung -> Radio "hört" nichts (leere Scan-Liste). Bekannter Fix:
     WiFi.setTxPower(WIFI_POWER_8_5dBm);
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
@@ -518,10 +518,10 @@ class ScanCallbacks : public NimBLEAdvertisedDeviceCallbacks {
         }
 #endif
 
-        // MQTT_TOPIC_OCLEAN leer -> Buersten-Bereich deaktiviert
+        // MQTT_TOPIC_OCLEAN leer -> Bürsten-Bereich deaktiviert
         if (strlen(MQTT_TOPIC_OCLEAN) > 0 && isToothbrushFrame(dev)) {
 #if DEBUG_BR
-            // Diagnose: alle 15 s Roh-Daten einer Buerste - damit suchen wir
+            // Diagnose: alle 15 s Roh-Daten einer Bürste - damit suchen wir
             // ein Nutzungs-Signal in der Payload (Standby vs. Motor laeuft)
             static uint32_t lastBrDump = 0;
             if (dev->haveServiceData() && millis() - lastBrDump > 15000) {
@@ -544,7 +544,7 @@ class ScanCallbacks : public NimBLEAdvertisedDeviceCallbacks {
                 DeviceState r;
                 if (decodeQingping(sd, r)) {
                     // Diagnose: alle 30 s ein Roh-Frame, damit wir sehen,
-                    // welche TLV-Varianten das Geraet tatsächlich sendet
+                    // welche TLV-Varianten das Gerät tatsächlich sendet
 #if DEBUG_QP
                     static uint32_t lastQpDump = 0;
                     if (millis() - lastQpDump > 30000) {
@@ -597,9 +597,9 @@ void startBle() {
     NimBLEDevice::init("");
     NimBLEScan *scan = NimBLEDevice::getScan();
     scan->setAdvertisedDeviceCallbacks(&scanCallbacks, true /* Wiederholungen auch melden */);
-    scan->setActiveScan(true);    // aktiv: holt auch Scan-Responses (Geraetenamen)
+    scan->setActiveScan(true);    // aktiv: holt auch Scan-Responses (Gerätenamen)
     scan->setInterval(0x40);      // 64 ms Intervall, 48 ms Fenster:
-    scan->setWindow(0x30);        // laesst dem WLAN Funkzeit fuer Coexistence
+    scan->setWindow(0x30);        // laesst dem WLAN Funkzeit für Coexistence
     // Dauer 0 = endloser Scan; Variante mit Callback laeuft nicht-blockierend
     scan->start(0, [](NimBLEScanResults results) {
         Serial.println("BLE-Scan endete, wird neu gestartet ...");
@@ -618,7 +618,7 @@ void publishPending() {
     for (auto &kv : devices) {
         if (!kv.second.pending) continue;
         if (millis() - kv.second.lastPublish < (uint32_t)MIN_PUBLISH_INTERVAL_S * 1000UL) {
-            continue;  // bleibt pending, naechster Aufruf
+            continue;  // bleibt pending, nächster Aufruf
         }
         toSend.emplace_back(kv.first, kv.second);
         kv.second.pending = false;
@@ -673,7 +673,7 @@ void publishPending() {
         }
 
 #if LED_FEEDBACK
-        digitalWrite(LED_PIN, LOW);   // kurze LED-Bestaetigung
+        digitalWrite(LED_PIN, LOW);   // kurze LED-Bestätigung
         delay(15);
         digitalWrite(LED_PIN, HIGH);
 #endif
@@ -712,7 +712,7 @@ void setup() {
 
     startBle();
 
-    // OTA: Firmware-Updates uebers Netzwerk
+    // OTA: Firmware-Updates übers Netzwerk
     ArduinoOTA.setHostname(HOSTNAME);
     if (strlen(OTA_PASSWORD) > 0) ArduinoOTA.setPassword(OTA_PASSWORD);
     ArduinoOTA.onStart([]() {

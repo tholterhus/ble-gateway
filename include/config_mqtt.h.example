@@ -2,7 +2,7 @@
 
 // ============================================================
 //  MQTT-Konfiguration
-//  Diese Datei einmal nach "config_mqtt.h" kopieren und ausfuellen.
+//  Diese Datei einmal nach "config_mqtt.h" kopieren und ausfüllen.
 //  Sie bleibt bei Code-Updates unangetastet.
 // ============================================================
 
@@ -12,17 +12,17 @@
 #define MQTT_USER       ""          // leer lassen, wenn der Broker keine Auth verlangt
 #define MQTT_PASSWORD   ""
 
-// Basis-Pfad fuer die Govee-Sensoren, z. B. govee/H5075_1A2B/temperature
-// LEER SETZEN (""), um die Govee-Ueberwachung komplett zu deaktivieren
+// Basis-Pfad für die Govee-Sensoren, z. B. govee/H5075_1A2B/temperature
+// LEER SETZEN (""), um die Govee-Überwachung komplett zu deaktivieren
 // (dann entfallen auch die Topics govee/status und govee/version).
 #define MQTT_BASETOPIC  "govee"
 
-// Qingping-Geraete erscheinen unter eigenem Pfad,
+// Qingping-Geräte erscheinen unter eigenem Pfad,
 // z. B. qingping/Qingping_50C8/temperature|humidity|co2|pm25|pm10|rssi
 // LEER SETZEN (""), um den Qingping-Bereich zu deaktivieren.
 #define MQTT_TOPIC_QINGPING "qingping"
 
-// Oclean-Zahnbuersten erscheinen unter eigenem Pfad,
+// Oclean-Zahnbürsten erscheinen unter eigenem Pfad,
 // z. B. oclean/Oclean_X_9672/adv_pro_min|rssi
 // LEER SETZEN (""), um den Oclean-Bereich zu deaktivieren.
 #define MQTT_TOPIC_OCLEAN  "oclean"
@@ -30,19 +30,19 @@
 // Werte mit Retain-Flag publishen (der Broker cacht den letzten Wert)
 #define MQTT_RETAIN     true
 
-// Mindestabstand zwischen zwei Publishes pro Geraet in Sekunden
-// (der H5075 sendet ~2x/s; nur Aenderungen werden gemeldet)
+// Mindestabstand zwischen zwei Publishes pro Gerät in Sekunden
+// (der H5075 sendet ~2x/s; nur Änderungen werden gemeldet)
 #define MIN_PUBLISH_INTERVAL_S  10
 
-// ---- Zahnbuersten-Beobachtung (Oclean) ----
-// Zaehlt BLE-Frames von 'Oclean'-Geraeten, Xiaomi-0xFEAF-Frames und
-// dem Oclean-MAC-Praefix. Je Buerste ein eigener Ordner (Modellname +
+// ---- Zahnbürsten-Beobachtung (Oclean) ----
+// Zaehlt BLE-Frames von 'Oclean'-Geräten, Xiaomi-0xFEAF-Frames und
+// dem Oclean-MAC-Praefix. Je Bürste ein eigener Ordner (Modellname +
 // letzte 4 MAC-Stellen):
-//   oclean/adv_pro_min              Summe aller Buersten
-//   oclean/Oclean_X_9672/adv_pro_min  je Buerste (nur bei Aenderung)
+//   oclean/adv_pro_min              Summe aller Bürsten
+//   oclean/Oclean_X_9672/adv_pro_min  je Bürste (nur bei Änderung)
 //   oclean/Oclean_X_9672/rssi
-// Messung 10/2026: Die Buersten senden im Standby ~11-22 Frames/min mit
+// Messung 10/2026: Die Bürsten senden im Standby ~11-22 Frames/min mit
 // eingefrorener Payload und aendern weder Payload noch Rate, wenn der
-// Motor laeuft - ein "wird benutzt"-Signal ist per passivem BLE-Mithoeren
+// Motor laeuft - ein "wird benutzt"-Signal ist per passivem BLE-Mithören
 // nicht vorhanden (daher gibt es bewusst kein 'aktiv'-Topic).
 #define BRUSH_WINDOW_S          60  // Zaehlfenster in Sekunden

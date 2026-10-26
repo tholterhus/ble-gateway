@@ -1,7 +1,7 @@
 #!/bin/bash
 # ============================================================
 #  OTA-Update ohne USB-Kabel:
-#    ./ota.sh              -> sucht das Geraet automatisch
+#    ./ota.sh              -> sucht das Gerät automatisch
 #    ./ota.sh 192.168.1.50 -> explizite IP/Hostname
 #
 #  Das OTA-Passwort kommt aus platformio_local.ini
@@ -28,7 +28,7 @@ if [ -z "$TARGET" ]; then
 fi
 
 if [ -z "$TARGET" ]; then
-    echo "Geraet nicht gefunden (ble-gateway.local / ble-gateway.at.home probiert)."
+    echo "Gerät nicht gefunden (ble-gateway.local / ble-gateway.at.home probiert)."
     echo "IP explizit angeben: ./ota.sh 192.168.178.251"
     exit 1
 fi

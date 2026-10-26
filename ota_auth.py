@@ -2,7 +2,7 @@
 # Der Builder haengt beim espota-Protokoll die eigenen upload_flags
 # NICHT an (UPLOADERFLAGS wird hartkodiert gesetzt) -> OTA-Auth schlaegt
 # immer fehl. Dieses Post-Script liest das Passwort aus der lokalen
-# platformio_local.ini (gitignored) und haengt es selbststaendig an.
+# platformio_local.ini (gitignored) und haengt es selbstständig an.
 #
 # Format in platformio_local.ini:
 #     upload_flags = --auth=DEIN_PASSWORT

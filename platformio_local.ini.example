@@ -4,8 +4,8 @@
 ;  Repo ausgeschlossen.
 ;
 ;  Achtung: Muss mit OTA_PASSWORD in include/config.h
-;  uebereinstimmen - das Passwort der LAUFENDEN Firmware entscheidet
-;  beim OTA-Upload, eine Aenderung wird erst mit dem naechsten
+;  übereinstimmen - das Passwort der LAUFENDEN Firmware entscheidet
+;  beim OTA-Upload, eine Änderung wird erst mit dem nächsten
 ;  erfolgreichen Upload aktiv.
 ; ============================================================
 [env:esp32c3_supermini]

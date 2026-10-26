@@ -2,7 +2,7 @@
 
 // ============================================================
 //  WLAN-Konfiguration
-//  Diese Datei einmal nach "config.h" kopieren und ausfuellen.
+//  Diese Datei einmal nach "config.h" kopieren und ausfüllen.
 //  Sie bleibt bei Code-Updates unangetastet.
 // ============================================================
 
@@ -12,7 +12,7 @@
 // Hostname im Netzwerk (DHCP)
 #define HOSTNAME       "ble-gateway"
 
-// Blaue Onboard-LED (GPIO 8, active-LOW) als Sende-Bestaetigung:
+// Blaue Onboard-LED (GPIO 8, active-LOW) als Sende-Bestätigung:
 //   1 = dunkel, blitzt kurz bei jedem Messwert-Publish
 //   0 = Pin hochohmig (LED aus)
 // Je nach Klon-Variante hat das Board diese LED gar nicht (dann
@@ -25,6 +25,6 @@
 // PlatformIO-Konsole pruefen, dass der Upload wirklich durchlief.
 #define LED_TEST       0
 
-// Passwort fuer OTA-Updates (Firmware-Upload uebers Netzwerk).
+// Passwort für OTA-Updates (Firmware-Upload übers Netzwerk).
 // Leer lassen = ohne Passwort (nicht empfohlen).
 #define OTA_PASSWORD   "aendern!"
