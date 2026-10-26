@@ -22,7 +22,7 @@
 
 // LED-Dauertest: 1 = GPIO 8 dauerhaft LOW (blaue LED leuchtet konstant).
 // Hat Vorrang vor LED_FEEDBACK. Wichtig: nach dem Flashen in der
-// PlatformIO-Konsole pruefen, dass der Upload wirklich durchlief.
+// PlatformIO-Konsole prüfen, dass der Upload wirklich durchlief.
 #define LED_TEST       0
 
 // Passwort für OTA-Updates (Firmware-Upload übers Netzwerk).

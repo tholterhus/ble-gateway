@@ -1,8 +1,8 @@
 # PlatformIO-espressif32-Workaround:
-# Der Builder haengt beim espota-Protokoll die eigenen upload_flags
-# NICHT an (UPLOADERFLAGS wird hartkodiert gesetzt) -> OTA-Auth schlaegt
+# Der Builder hängt beim espota-Protokoll die eigenen upload_flags
+# NICHT an (UPLOADERFLAGS wird hartkodiert gesetzt) -> OTA-Auth schlägt
 # immer fehl. Dieses Post-Script liest das Passwort aus der lokalen
-# platformio_local.ini (gitignored) und haengt es selbstständig an.
+# platformio_local.ini (gitignored) und hängt es selbstständig an.
 #
 # Format in platformio_local.ini:
 #     upload_flags = --auth=DEIN_PASSWORT

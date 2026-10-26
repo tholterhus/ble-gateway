@@ -9,8 +9,8 @@ retained Topic `govee/version`. Änderungshistorie:
 
 ## Worum geht es?
 
-Viele Günstige Geräte funken ihren Zustand schon unablaessig ins
-Funknetz — als BLE-Advertisement, unabhaengig von der App des
+Viele Günstige Geräte funken ihren Zustand schon unablässig ins
+Funknetz — als BLE-Advertisement, unabhängig von der App des
 Herstellers. Dieses Projekt lauscht dieser Funkerei passiv zu: Das
 Gateway **koppelt sich nie mit einem Gerät**, braucht keine App, keine
 Cloud und keinen Account. Es dekodiert die Advertisements und legt die
@@ -30,7 +30,7 @@ ein und rundete das Bild ab: drei Hersteller, ein Board.
 
 Der Code ist zu 100 % KI-generiert (ZCode mit dem GLM-Modell). Der
 Mensch dahinter hat gelenkt: Anforderungen formuliert, das Board an
-den USB-Stecker gehaengt, Messreihen aufgenommen, Fehlannahmen
+den USB-Stecker gehängt, Messreihen aufgenommen, Fehlannahmen
 widerlegt (etwa die Hoffnung auf ein Putz-Erkennungssignal) und
 entschieden, was bleiben darf. Was hier funktioniert, funktioniert
 nur, weil jede Behauptung am Gerät verifiziert wurde — README und
@@ -45,7 +45,7 @@ CHANGELOG dokumentieren den Weg inklusive Irrwege.
   MQTT-Broker (ioBroker mqtt-Adapter, Mosquitto, Home Assistant ...)
 - **Geräte (optional, je nach Interesse):** Govee H5075/H5077,
   Qingping Air Monitor Lite, Oclean-Zahnbürsten
-- **Nicht noetig:** Cloud-Zugang, Hersteller-App, Hub, Guthaben
+- **Nicht nötig:** Cloud-Zugang, Hersteller-App, Hub, Guthaben
 
 ## Was kann es?
 
@@ -57,12 +57,12 @@ CHANGELOG dokumentieren den Weg inklusive Irrwege.
   (überlebt Neustart und Reflash).
 - **Effizientes MQTT:** Werte nur bei Änderung, mit Retain, Last Will
   (`govee/status`) und Versions-Topic (`govee/version`).
-- **Modular:** jeder Geräte-Bereich (Govee / Qingping / Oclean) laesst
+- **Modular:** jeder Geräte-Bereich (Govee / Qingping / Oclean) lässt
   sich per Config einzeln abschalten.
 - **OTA:** Firmware-Updates übers WLAN, ohne USB-Kabel.
 - **Ehrliche Grenzen** (gemessen, nicht geraten): die Oclean-Bürsten
   unterscheiden Standby und Nutzung weder in der Payload noch in der
-  Frame-Rate — es gibt ein Aktivitaets-/Anwesenheitssignal, aber kein
+  Frame-Rate — es gibt ein Aktivitäts-/Anwesenheitssignal, aber kein
   "wird geputzt". Govee/Qingping liefern dagegen vollwertige
   Messwerte.
 
@@ -75,13 +75,13 @@ CHANGELOG dokumentieren den Weg inklusive Irrwege.
 ## Schnellstart (ca. 10 Minuten)
 
 1. Dieses Repository klonen oder herunterladen und den Ordner in
-   VSCode öffnen (PlatformIO laedt beim ersten Build die Toolchain —
+   VSCode öffnen (PlatformIO lädt beim ersten Build die Toolchain —
    einmalig ein paar Minuten).
 2. **`include/config.h.example` nach `include/config.h` kopieren** und
    ausfüllen: WLAN-Name, WLAN-Passwort, OTA-Passwort.
 3. **`include/config_mqtt.h.example` nach `include/config_mqtt.h`
    kopieren** und ausfüllen: Adresse/Port/Login deines MQTT-Brokers
-   sowie die Topic-Pfae (Bereiche mit leerem Namen = aus).
+   sowie die Topic-Pfade (Bereiche mit leerem Namen = aus).
 4. ESP per USB anstecken, in der PlatformIO-Leiste **Upload** (→)
    klicken, danach **Serial Monitor** (115200 Baud): dort erscheinen
    Versionsnummer, WLAN-/MQTT-Status und alle erkannten Geräte.
@@ -89,7 +89,7 @@ CHANGELOG dokumentieren den Weg inklusive Irrwege.
    `oclean/#` (bzw. nur die aktivierten Bereiche).
 
 Update-Hinweis: Bei neuen Versionen dieses Repos den Code ersetzen —
-deine beiden `config`-Dateien bleiben unberuehrt.
+deine beiden `config`-Dateien bleiben unberührt.
 
 ## Was im MQTT ankommt?
 
@@ -117,11 +117,11 @@ und nur bei Änderung gesendet (Batterie/RSSI laufen passiv mit).
 ## Einstellungen
 
 - `include/config.h` — WLAN, Hostname, LED, OTA-Passwort
-- `include/config_mqtt.h` — Broker, Topic-Pfae, Sende-Intervalle.
-  **Jeder Monitoring-Bereich laesst sich einzeln abschalten:** den
+- `include/config_mqtt.h` — Broker, Topic-Pfade, Sende-Intervalle.
+  **Jeder Monitoring-Bereich lässt sich einzeln abschalten:** den
   zugehörigen Topic-Pfad (`MQTT_BASETOPIC`, `MQTT_TOPIC_QINGPING`,
   `MQTT_TOPIC_OCLEAN`) auf `""` setzen — dann wird der Bereich
-  komplett übersprungen (auch keine NVS-Eintraege, kein Logspam).
+  komplett übersprungen (auch keine NVS-Einträge, kein Logspam).
   Standard: alle drei aktiv.
 - `src/main.cpp` (oberster Block) — Debug-Logzeilen einzeln
   zuschaltbar: `[ADV]` (alle BLE-Geräte im Funkraum), `[BLE-Stat]`
@@ -131,7 +131,7 @@ und nur bei Änderung gesendet (Batterie/RSSI laufen passiv mit).
 
 ## OTA: Updates ohne USB-Kabel
 
-Nach dem ersten USB-Flash laesst sich jede neue Firmware übers Netz
+Nach dem ersten USB-Flash lässt sich jede neue Firmware übers Netz
 spielen — am einfachsten mit dem beiliegenden Skript (löst den
 Gerätenamen auf und ruft PlatformIO mit der IP auf):
 
@@ -143,7 +143,7 @@ Direkt per PlatformIO:
     pio run -t upload --upload-port ble-gateway.local
 
 (statt `.local` geht auch die IP-Adresse; Passwort = `OTA_PASSWORD`).
-**IP statt Hostname empfohlen:** PlatformIO waehlt nur bei einer IP
+**IP statt Hostname empfohlen:** PlatformIO wählt nur bei einer IP
 automatisch das OTA-Protokoll (`espota`) — bei reinen Hostnamen
 (`.at.home` & Co.) versucht es sonst, den Namen als seriellen Port zu
 öffnen und bricht ab.
@@ -158,14 +158,14 @@ beim Upload selbstständig den BLE-Scan und startet danach neu. Einmal
 pro Firmware-Version empfiehlt sich trotzdem der Blick in den
 Serial-Monitor. Bei "Error Uploading" mitten im Transfer: nochmal
 versuchen (z. B. wenn parallel ein zweiter OTA-Client lief) — der ESP
-faehrt bei Abbruch automatisch mit der alten Firmware weiter.
+fährt bei Abbruch automatisch mit der alten Firmware weiter.
 
 ## Fehlerbehebung
 
 - **WLAN verbindet nicht:** Der ESP32-C3 kann nur 2,4 GHz — ein
   5-GHz-SSID-Name alleine reicht nicht, das Netz muss wirklich 2,4 GHz
   senden. Bei Fehlschlag listet die Firmware automatisch alle
-  sichtbaren WLANs mit Kanal und Verschluesselung im Serial-Monitor.
+  sichtbaren WLANs mit Kanal und Verschlüsselung im Serial-Monitor.
 - **Kurz nach dem Boot leere WLAN-Liste / kein Empfang:** Auf
   ESP32-C3-SuperMini-Klonen ist die Standard-Sendeleistung zu hoch —
   dieser Code setzt bereits `WiFi.setTxPower(WIFI_POWER_8_5dBm)`.

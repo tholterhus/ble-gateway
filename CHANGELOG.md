@@ -10,18 +10,18 @@ Versionsnummern nach [SemVer](https://semver.org/).
 
 - Monitoring-Bereiche einzeln deaktivierbar: in `include/config_mqtt.h`
   den zugehörigen Topic-Pfad auf `""` setzen — Govee, Qingping oder
-  Oclean wird dann komplett übersprungen (kein Dekodieren, Zaehlen,
-  NVS-Eintraege oder Log). Bei leerem `MQTT_BASETOPIC` entfallen auch
+  Oclean wird dann komplett übersprungen (kein Dekodieren, Zählen,
+  NVS-Einträge oder Log). Bei leerem `MQTT_BASETOPIC` entfallen auch
   die Topics `govee/status` und `govee/version` (MQTT-Connect ohne
   Last Will).
-- OTA-Passwort-Workaround: der espressif32-Builder haengt die eigenen
+- OTA-Passwort-Workaround: der espressif32-Builder hängt die eigenen
   `upload_flags` beim espota-Protokoll nicht an (auth bleibt leer,
   "Authentication Failed") — das Post-Script `ota_auth.py` liest das
   Passwort aus der lokalen `platformio_local.ini` (durch `.gitignore`
   vom Repo ausgeschlossen; Vorlage: `platformio_local.ini.example`)
-  und haengt es an.
-- README: OTA-Upload mit IP statt Hostname (PlatformIO waehlt bei
-  Hostnamen sonst faelschlich `esptool` und bricht ab).
+  und hängt es an.
+- README: OTA-Upload mit IP statt Hostname (PlatformIO wählt bei
+  Hostnamen sonst fälschlich `esptool` und bricht ab).
 
 ## [1.0.0] - 2026-10-25
 
@@ -36,7 +36,7 @@ Versionsnummern nach [SemVer](https://semver.org/).
   RSSI (Service Data an UUID 0xFDCD, TLV-Struktur).
 - Oclean-Zahnbürsten: Frames/min + RSSI je Bürste (Modellname +
   MAC-Suffix als Ordner), Erkennung über Name, Xiaomi-0xFEAF-Frames
-  und Oclean-MAC-Praefix `70:28:45:`.
+  und Oclean-MAC-Präfix `70:28:45:`.
 - Automatische Geräteerkennung; Geräteliste im NVS-Flash persistiert
   (überlebt Neustart und Reflash).
 - MQTT: Retain, change-only-Publish (Messwerte als Trigger, Batterie/
@@ -63,5 +63,5 @@ Versionsnummern nach [SemVer](https://semver.org/).
   unter TLV-Typ 0x12 (aeltere Modelle: 0x07), CO2 unter 0x13.
 - Oclean-Bürsten senden im Standby ~11-22 Frames/min mit eingefrorener
   Payload; weder Payload noch Frame-Rate unterscheiden sich, wenn der
-  Motor laeuft — ein "wird benutzt"-Signal ist per passivem Mithören
+  Motor läuft — ein "wird benutzt"-Signal ist per passivem Mithören
   nicht vorhanden (daher kein "aktiv"-Topic).

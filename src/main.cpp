@@ -21,7 +21,7 @@
 // 0 = aus, 1 = an. Aktuell ist nur [BR-Roh] an, um der Zahnbürsten-
 // Payload ein Nutzungs-Signal (Standby vs. Motor) zu entlocken.
 #define DEBUG_ADV   0   // [ADV] Erstkontakt/Rohdaten je BLE-Gerät
-#define DEBUG_STAT  0   // [BLE-Stat] Empfangs-Zaehler alle 10 s
+#define DEBUG_STAT  0   // [BLE-Stat] Empfangs-Zähler alle 10 s
 #define DEBUG_QP    0   // [QP-Roh] Qingping-Rohframe alle 30 s
 #define DEBUG_VAL   0   // "MQTT -> ..."-Zeile bei jedem Publish
 #define DEBUG_BR    0   // [BR-Roh] Bürsten-Rohframe alle 15 s (Payload-Analyse)
@@ -43,7 +43,7 @@ Preferences  prefs;   // NVS: persistente Geräte-Liste
 // ------------------------------------------------------------
 // Govee-Dekodierung (Format H5072/H5075, s. ble_monitor)
 //
-// Der Sensor haengt 6 Bytes als Service Data an die UUID 0xEC88:
+// Der Sensor hängt 6 Bytes als Service Data an die UUID 0xEC88:
 //   [0]    0x00 Padding
 //   [1..3] 24-Bit-Wert (big-endian): (Temperatur*100 + Feuchte*10)
 //          mit Bit 23 als Minus-Vorzeichen. Beispiel 21.5 C / 45.0 %:
@@ -69,7 +69,7 @@ bool decodeGovee(const uint8_t *d, GoveeReading &out) {
     out.humidity = (v % 1000) / 10.0f;
     out.battery  = d[4];
 
-    // Plausibilitaet: danebengegriffene Frames verwerfen
+    // Plausibilität: danebengegriffene Frames verwerfen
     if (out.battery > 100 || out.humidity > 100.0f ||
         out.temperature > 80.0f || out.temperature < -60.0f) {
         return false;
@@ -97,10 +97,10 @@ struct DeviceState {
     bool     persisted   = false;  // bereits im NVS vermerkt
 };
 
-std::map<std::string, DeviceState> devices;  // Schluessel: MAC-String
+std::map<std::string, DeviceState> devices;  // Schlüssel: MAC-String
 
 // ------------------------------------------------------------
-// BLE-Diagnose: Empfangs-Zaehler + Erstkontakt-Log je Gerät
+// BLE-Diagnose: Empfangs-Zähler + Erstkontakt-Log je Gerät
 // ------------------------------------------------------------
 volatile uint32_t advCount = 0, sdCount = 0, mfgCount = 0;
 std::set<std::string> loggedMacs;
@@ -122,7 +122,7 @@ String hexDump(const std::string &s, size_t maxBytes = 24) {
 // Zahnbürsten-Beobachtung (Oclean): Frames von Geräten mit
 // "Oclean" im Namen, Xiaomi-0xFEAF-Frames (Oclean = Xiaomi-
 // Ecosystem, bei uns die N0xx-Bürsten) und dem beobachteten
-// Oclean-MAC-Praefix. Je Bürste ein eigener MQTT-Ordner.
+// Oclean-MAC-Präfix. Je Bürste ein eigener MQTT-Ordner.
 // ------------------------------------------------------------
 #define BRUSH_TS_SIZE 32   // Ringpuffer: max. Frames je Bürste im Fenster
 
@@ -133,13 +133,13 @@ struct BrushState {
     uint16_t write = 0;
 };
 
-std::map<std::string, BrushState> brushes;  // Schluessel: MAC
+std::map<std::string, BrushState> brushes;  // Schlüssel: MAC
 
 bool isToothbrushFrame(NimBLEAdvertisedDevice *dev) {
     std::string name = dev->haveName() ? dev->getName() : "";
     if (name.find("Oclean") != std::string::npos) return true;
     std::string mac = dev->getAddress().toString();
-    if (mac.rfind("70:28:45:", 0) == 0) return true;  // Oclean-Praefix (beobachtet)
+    if (mac.rfind("70:28:45:", 0) == 0) return true;  // Oclean-Präfix (beobachtet)
     NimBLEUUID feaf((uint16_t)0xFEAF);
     for (uint8_t i = 0; i < dev->getServiceDataCount(); i++) {
         if (dev->getServiceDataUUID(i) == feaf) return true;
@@ -225,7 +225,7 @@ void brushPublish() {  // loop-Kontext
         total += s.count;
         snaps.push_back(s);
 
-        // NVS-Registry "mac=Modellname" (Namen koennen nachtraeglich dazukommen)
+        // NVS-Registry "mac=Modellname" (Namen können nachträglich dazukommen)
         if (reg.length()) reg += ",";
         reg += kv.first.c_str();
         reg += "=";
@@ -233,7 +233,7 @@ void brushPublish() {  // loop-Kontext
     }
     xSemaphoreGive(stateMutex);
 
-    // neue/veränderte Eintraege dauerhaft sichern (nur bei tatsaechlicher Änderung)
+    // neue/veränderte Einträge dauerhaft sichern (nur bei tatsächlicher Änderung)
     if (reg != lastWrittenReg && reg.length()) {
         lastWrittenReg = reg;
         prefs.putString("brushes", reg);
@@ -325,7 +325,7 @@ void loadKnownDevices() {
 // ------------------------------------------------------------
 // Qingping Air Monitor: Service Data an UUID 0xFDCD
 //   [0] 0x08 (Bit 7 optional gesetzt), [1] Flags,
-//   [2..7] MAC (reversed), danach TLV-Ketten [Typ][Laenge][Wert]:
+//   [2..7] MAC (reversed), danach TLV-Ketten [Typ][Länge][Wert]:
 //     0x01 len4: Temperatur int16/10, Feuchte uint16/10
 //     0x02 len1: Batterie % (Bit 7 = Laedt)
 //     0x07/0x12 len4: PM2.5, PM10 (ug/m3)
@@ -447,7 +447,7 @@ void connectWiFi() {
         WiFi.scanDelete();
         Serial.println("(steht das Ziel-SSID nicht in der Liste -> Band/Kanal-"
                        "Problem; steht es mit Auth 3 (WPA2/WPA3) -> Sicherheits-"
-                       "Modus pruefen)");
+                       "Modus prüfen)");
     }
 }
 
@@ -487,7 +487,7 @@ void mqttConnect() {
 // ------------------------------------------------------------
 class ScanCallbacks : public NimBLEAdvertisedDeviceCallbacks {
     void onResult(NimBLEAdvertisedDevice *dev) override {
-        // --- Diagnose: zaehlt alles mit ---
+        // --- Diagnose: zählt alles mit ---
         advCount++;
         if (dev->haveServiceData()) sdCount++;
         if (dev->haveManufacturerData()) mfgCount++;
@@ -522,7 +522,7 @@ class ScanCallbacks : public NimBLEAdvertisedDeviceCallbacks {
         if (strlen(MQTT_TOPIC_OCLEAN) > 0 && isToothbrushFrame(dev)) {
 #if DEBUG_BR
             // Diagnose: alle 15 s Roh-Daten einer Bürste - damit suchen wir
-            // ein Nutzungs-Signal in der Payload (Standby vs. Motor laeuft)
+            // ein Nutzungs-Signal in der Payload (Standby vs. Motor läuft)
             static uint32_t lastBrDump = 0;
             if (dev->haveServiceData() && millis() - lastBrDump > 15000) {
                 lastBrDump = millis();
@@ -599,8 +599,8 @@ void startBle() {
     scan->setAdvertisedDeviceCallbacks(&scanCallbacks, true /* Wiederholungen auch melden */);
     scan->setActiveScan(true);    // aktiv: holt auch Scan-Responses (Gerätenamen)
     scan->setInterval(0x40);      // 64 ms Intervall, 48 ms Fenster:
-    scan->setWindow(0x30);        // laesst dem WLAN Funkzeit für Coexistence
-    // Dauer 0 = endloser Scan; Variante mit Callback laeuft nicht-blockierend
+    scan->setWindow(0x30);        // lässt dem WLAN Funkzeit für Coexistence
+    // Dauer 0 = endloser Scan; Variante mit Callback läuft nicht-blockierend
     scan->start(0, [](NimBLEScanResults results) {
         Serial.println("BLE-Scan endete, wird neu gestartet ...");
     }, false);
@@ -689,7 +689,7 @@ void setup() {
     pinMode(LED_PIN, OUTPUT);
     digitalWrite(LED_PIN, HIGH);  // LED aus (active LOW)
 #else
-    // Pin hochohmig legen: LED garantiert aus, unabhaengig davon, ob die
+    // Pin hochohmig legen: LED garantiert aus, unabhängig davon, ob die
     // Board-LED active-LOW oder (wie bei manchen SuperMini-Klonen) active-HIGH
     // verdrahtet ist.
     pinMode(LED_PIN, INPUT);

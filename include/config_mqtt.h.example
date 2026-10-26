@@ -35,14 +35,14 @@
 #define MIN_PUBLISH_INTERVAL_S  10
 
 // ---- Zahnbürsten-Beobachtung (Oclean) ----
-// Zaehlt BLE-Frames von 'Oclean'-Geräten, Xiaomi-0xFEAF-Frames und
-// dem Oclean-MAC-Praefix. Je Bürste ein eigener Ordner (Modellname +
+// Zählt BLE-Frames von 'Oclean'-Geräten, Xiaomi-0xFEAF-Frames und
+// dem Oclean-MAC-Präfix. Je Bürste ein eigener Ordner (Modellname +
 // letzte 4 MAC-Stellen):
 //   oclean/adv_pro_min              Summe aller Bürsten
 //   oclean/Oclean_X_9672/adv_pro_min  je Bürste (nur bei Änderung)
 //   oclean/Oclean_X_9672/rssi
 // Messung 10/2026: Die Bürsten senden im Standby ~11-22 Frames/min mit
 // eingefrorener Payload und aendern weder Payload noch Rate, wenn der
-// Motor laeuft - ein "wird benutzt"-Signal ist per passivem BLE-Mithören
+// Motor läuft - ein "wird benutzt"-Signal ist per passivem BLE-Mithören
 // nicht vorhanden (daher gibt es bewusst kein 'aktiv'-Topic).
-#define BRUSH_WINDOW_S          60  // Zaehlfenster in Sekunden
+#define BRUSH_WINDOW_S          60  // Zählfenster in Sekunden
