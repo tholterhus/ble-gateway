@@ -17,6 +17,25 @@ Cloud und keinen Account. Es dekodiert die Advertisements und legt die
 Werte als MQTT-Topics in dein Smarthome (ioBroker, Home Assistant,
 FHEM, openHAB ...). Ein 5-Euro-Board, ein USB-Stecker, fertig.
 
+## Entstehung — und warum alles "govee" heisst
+
+Das Projekt startete als reines Govee-Gateway (daher Repo-Name und der
+MQTT-Basispfad `govee`, der aus Kompatibilitaet zum bestehenden Setup
+erhalten blieb). Dann kamen aus Neugier die Oclean-Zahnbuersten dazu —
+ihre Auswertung entpuppte sich als praktisch nutzlos, das Ergebnis ist
+trotzdem sauber dokumentiert. Zuletzt zog der Qingping Air Monitor
+ein und rundete das Bild ab: drei Hersteller, ein Board.
+
+## Wie dieser Code entstanden ist
+
+Der Code ist zu 100 % KI-generiert (ZCode mit dem GLM-Modell). Der
+Mensch dahinter hat gelenkt: Anforderungen formuliert, das Board an
+den USB-Stecker gehaengt, Messreihen aufgenommen, Fehlannahmen
+widerlegt (etwa die Hoffnung auf ein Putz-Erkennungssignal) und
+entschieden, was bleiben darf. Was hier funktioniert, funktioniert
+nur, weil jede Behauptung am Geraet verifiziert wurde — README und
+CHANGELOG dokumentieren den Weg inklusive Irrwege.
+
 ## Was brauche ich?
 
 - **Board:** ESP32-C3 (z. B. SuperMini, DevKitM-1) — ~5 Euro
