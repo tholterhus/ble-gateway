@@ -327,7 +327,7 @@ void loadKnownDevices() {
 //   [0] 0x08 (Bit 7 optional gesetzt), [1] Flags,
 //   [2..7] MAC (reversed), danach TLV-Ketten [Typ][Länge][Wert]:
 //     0x01 len4: Temperatur int16/10, Feuchte uint16/10
-//     0x02 len1: Batterie % (Bit 7 = Laedt)
+//     0x02 len1: Batterie % (Bit 7 = lädt)
 //     0x07/0x12 len4: PM2.5, PM10 (ug/m3)
 //     0x08/0x13 len2: CO2 (ppm)
 //     0x09 len2: Beleuchtung (Lux)
