@@ -41,13 +41,16 @@ SemaphoreHandle_t stateMutex;
 Preferences  prefs;   // NVS: persistente Geräte-Liste
 
 // ------------------------------------------------------------
-// Govee-Dekodierung (Format H5072/H5075, s. ble_monitor)
+// Govee-Dekodierung (H5075/H5077, Format wie H5072, s. ble_monitor)
 //
-// Der Sensor hängt 6 Bytes als Service Data an die UUID 0xEC88:
+// FW 1.04.x (am Gerät verifiziert): die 6 Bytes liegen als Manufacturer
+// Data hinter der Company-ID 88 EC. Ältere Firmwares legen dieselben
+// 6 Bytes laut ble_monitor als Service Data an die UUID 0xEC88 — der
+// Code akzeptiert beides. Aufbau der 6 Bytes:
 //   [0]    0x00 Padding
-//   [1..3] 24-Bit-Wert (big-endian): (Temperatur*100 + Feuchte*10)
-//          mit Bit 23 als Minus-Vorzeichen. Beispiel 21.5 C / 45.0 %:
-//          215 * 1000 + 450 = 215450
+//   [1..3] 24-Bit-Wert (big-endian): Temperatur-Zehntelgrad * 1000
+//          + Feuchte-Zehntelprozent, Bit 23 = Minus-Vorzeichen.
+//          Beispiel 21.5 C / 45.0 %: 215 * 1000 + 450 = 215450
 //   [4]    Batterie in Prozent
 //   [5]    0x00 Padding
 // ------------------------------------------------------------
@@ -325,12 +328,16 @@ void loadKnownDevices() {
 // ------------------------------------------------------------
 // Qingping Air Monitor: Service Data an UUID 0xFDCD
 //   [0] 0x08 (Bit 7 optional gesetzt), [1] Flags,
-//   [2..7] MAC (reversed), danach TLV-Ketten [Typ][Länge][Wert]:
+//   [2..7] MAC (byteweise gedreht; wird nicht dekodiert — das letzte
+//          Byte wich im Test minimal vom advertised MAC ab),
+//   danach TLV-Ketten [Typ][Länge][Wert]; alle Werte in JEDDEM Frame:
 //     0x01 len4: Temperatur int16/10, Feuchte uint16/10
-//     0x02 len1: Batterie % (Bit 7 = lädt)
-//     0x07/0x12 len4: PM2.5, PM10 (ug/m3)
-//     0x08/0x13 len2: CO2 (ppm)
-//     0x09 len2: Beleuchtung (Lux)
+//     0x07/0x12 len4: PM2.5, PM10 (ug/m3)   [0x12 am Gerät bestätigt]
+//     0x08/0x13 len2: CO2 (ppm)             [0x13 am Gerät bestätigt]
+//     0x02 len1: Batterie % (Bit 7 = lädt)  [laut ble_monitor, hier
+//                                             nicht beobachtet]
+//     0x09 len2: Beleuchtung (Lux)          [andere Qingping-Modelle,
+//                                             unbelegt]
 // ------------------------------------------------------------
 bool decodeQingping(const std::string &sd, DeviceState &out) {
     if (sd.size() < 11 || ((uint8_t)sd[0] & 0x7F) != 0x08) return false;
