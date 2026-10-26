@@ -59,8 +59,11 @@ Versionsnummern nach [SemVer](https://semver.org/).
   (active-LOW) und/oder rote Power-LED fest an 3,3 V (nicht
   steuerbar); manche Exemplare haben nur die rote.
 - Govee: eine aktive App-Verbindung kann das Broadcasting unterbrechen.
-- Qingping: Werte rotieren über mehrere Frame-Varianten, PM2.5/PM10
-  unter TLV-Typ 0x12 (aeltere Modelle: 0x07), CO2 unter 0x13.
+- Qingping: alle Werte (Temperatur/Feuchte, PM2.5/PM10, CO2) liegen in
+  jedem Frame gemeinsam; PM steckt unter TLV-Typ 0x12 (aeltere Modelle:
+  0x07), CO2 unter 0x13. (Die urspruengliche Annahme "Werte rotieren
+  ueber mehrere Frame-Varianten" war falsch — die zeitweise fehlenden
+  PM-Werte hatten einen Decoder-Bug als Ursache, behoben in v1.1.0.)
 - Oclean-Bürsten senden im Standby ~11-22 Frames/min mit eingefrorener
   Payload; weder Payload noch Frame-Rate unterscheiden sich, wenn der
   Motor läuft — ein "wird benutzt"-Signal ist per passivem Mithören

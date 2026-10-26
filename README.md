@@ -174,9 +174,12 @@ fährt bei Abbruch automatisch mit der alten Firmware weiter.
   App-Verbindung kann das Broadcasting unterbrechen) und den Sensor
   näher ans Gateway setzen; die Empfangsstärke (`.../rssi`) im Blick
   behalten.
-- **Qingping-PM-Werte fehlen anfangs:** Das Gerät verteilt die Werte
-  auf mehrere Frame-Varianten; Temperatur/Feuchte/CO₂ kommen
-  sofort, PM2.5/PM10 mit dem nächsten passenden Frame.
+- **Qingping-Werte unvollständig:** Alle Werte kommen in jedem Frame
+  gemeinsam an (Temperatur/Feuchte, CO₂ und PM2.5/PM10 in einem).
+  Fehlen einzelne Werte dauerhaft, liegt es am Empfang (RSSI prüfen) —
+  bei der Entwicklung dieses Gateways war PM zeitweise NaN, weil der
+  Decoder zunächst den falschen TLV-Typ las (PM steckt unter 0x12,
+  nicht 0x07 wie bei älteren Qingping-Modellen); seit v1.1.0 behoben.
 - **LED:** Blaue LED (falls dein Board eine hat): GPIO 8, active-LOW —
   `LED_FEEDBACK 1` = kurzer Blitz bei jedem Publish, `LED_TEST 1` =
   Dauertest. Die rote Power-LED ist fest verdrahtet und nicht
