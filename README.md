@@ -101,7 +101,11 @@ deine beiden `config`-Dateien bleiben unberuehrt.
 | `govee/H5075_XXXX/humidity` | rel. Feuchte % |
 | `govee/H5075_XXXX/battery` | Batterie % |
 | `govee/H5075_XXXX/rssi` | Empfangsstärke dBm |
-| `qingping/Qingping_XXXX/temperature|humidity|co2|pm25|pm10|rssi` | Luftdaten |
+| `qingping/Qingping_XXXX/temperature` | Grad C |
+| `qingping/Qingping_XXXX/humidity` | rel. Feuchte % |
+| `qingping/Qingping_XXXX/co2` | CO₂ in ppm |
+| `qingping/Qingping_XXXX/pm25` und `.../pm10` | Feinstaub in µg/m³ |
+| `qingping/Qingping_XXXX/rssi` | Empfangsstärke dBm |
 | `oclean/adv_pro_min` | Summe aller Bürsten-Frames (60-s-Fenster) |
 | `oclean/<Modell_XXXX>/adv_pro_min` | Frames je Bürste (nur bei Änderung) |
 | `oclean/<Modell_XXXX>/rssi` | Empfangsstärke je Bürste |
