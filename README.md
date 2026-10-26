@@ -9,7 +9,7 @@ retained Topic `govee/version`. Änderungshistorie:
 
 ## Worum geht es?
 
-Viele Günstige Geräte funken ihren Zustand schon unablässig ins
+Viele günstige Geräte funken ihren Zustand schon unablässig ins
 Funknetz — als BLE-Advertisement, unabhängig von der App des
 Herstellers. Dieses Projekt lauscht dieser Funkerei passiv zu: Das
 Gateway **koppelt sich nie mit einem Gerät**, braucht keine App, keine
@@ -187,12 +187,18 @@ fährt bei Abbruch automatisch mit der alten Firmware weiter.
 
 ## Hardware-Basis
 
-Getestet mit einem ESP32-C3 SuperMini (Klon). Der Code arbeitet mit
-jedem ESP32-C3-Board mit Bluetooth; `platformio.ini` passt ggf. das
-`board`-Feld an. Wichtige Erfahrungswerte sind im Code dokumentiert:
+Getestet ausführlich mit einem ESP32-C3 SuperMini (Klon). Der Code
+nutzt nur Standardbausteine (NimBLE, WiFi, ArduinoOTA, Preferences) und
+läuft damit auf **jedem ESP32 mit WLAN und Bluetooth an Bord** —
+klassischer ESP32, S3, C3, C6 — wobei nur `board` in `platformio.ini`
+angepasst werden muss. **Nicht geeignet:** der ESP32-H2 (Bluetooth,
+aber kein WLAN — kein MQTT). Der im Code gesetzte
+`WiFi.setTxPower(WIFI_POWER_8_5dBm)` ist ein C3-SuperMini-Fix; auf
+klassischen ESP32-Boards ist er unnötig und kostet nur etwas
+Reichweite. Wichtige Erfahrungswerte sind im Code dokumentiert:
 TX-Leistungsfalle der SuperMinis, LED-Varianten, Partitionstabelle für
 OTA, und die BLE-Formate von Govee (FW 1.04.x: Manufacturer Data `88 EC`,
-aelter: Service Data UUID 0xEC88) und Qingping (Service Data UUID 0xFDCD,
+älter: Service Data UUID 0xEC88) und Qingping (Service Data UUID 0xFDCD,
 TLV-Struktur, PM unter Typ 0x12). Details und Messwerte:
 [CHANGELOG.md](CHANGELOG.md).
 

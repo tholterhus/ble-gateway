@@ -42,7 +42,7 @@
 //   oclean/Oclean_X_9672/adv_pro_min  je Bürste (nur bei Änderung)
 //   oclean/Oclean_X_9672/rssi
 // Messung 10/2026: Die Bürsten senden im Standby ~11-22 Frames/min mit
-// eingefrorener Payload und aendern weder Payload noch Rate, wenn der
+// eingefrorener Payload und ändern weder Payload noch Rate, wenn der
 // Motor läuft - ein "wird benutzt"-Signal ist per passivem BLE-Mithören
 // nicht vorhanden (daher gibt es bewusst kein 'aktiv'-Topic).
 #define BRUSH_WINDOW_S          60  // Zählfenster in Sekunden

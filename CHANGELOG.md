@@ -31,7 +31,7 @@ Versionsnummern nach [SemVer](https://semver.org/).
   mit (keine Kopplung, keine App, keine Cloud) und publisht per MQTT.
 - Govee H5075/H5077: Temperatur, Luftfeuchte, Batterie, RSSI
   (FW 1.04.x: Manufacturer Data `88 EC` + 6 Bytes mit
-  Vorzeichen-Bit; aeltere Firmwares: Service Data an UUID 0xEC88).
+  Vorzeichen-Bit; ältere Firmwares: Service Data an UUID 0xEC88).
 - Qingping Air Monitor Lite: Temperatur, Feuchte, CO2, PM2.5, PM10,
   RSSI (Service Data an UUID 0xFDCD, TLV-Struktur).
 - Oclean-Zahnbürsten: Frames/min + RSSI je Bürste (Modellname +
@@ -60,9 +60,9 @@ Versionsnummern nach [SemVer](https://semver.org/).
   steuerbar); manche Exemplare haben nur die rote.
 - Govee: eine aktive App-Verbindung kann das Broadcasting unterbrechen.
 - Qingping: alle Werte (Temperatur/Feuchte, PM2.5/PM10, CO2) liegen in
-  jedem Frame gemeinsam; PM steckt unter TLV-Typ 0x12 (aeltere Modelle:
+  jedem Frame gemeinsam; PM steckt unter TLV-Typ 0x12 (ältere Modelle:
   0x07), CO2 unter 0x13. (Die urspruengliche Annahme "Werte rotieren
-  ueber mehrere Frame-Varianten" war falsch — die zeitweise fehlenden
+  über mehrere Frame-Varianten" war falsch — die zeitweise fehlenden
   PM-Werte hatten einen Decoder-Bug als Ursache, behoben in v1.1.0.)
 - Oclean-Bürsten senden im Standby ~11-22 Frames/min mit eingefrorener
   Payload; weder Payload noch Frame-Rate unterscheiden sich, wenn der

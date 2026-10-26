@@ -27,4 +27,4 @@
 
 // Passwort für OTA-Updates (Firmware-Upload übers Netzwerk).
 // Leer lassen = ohne Passwort (nicht empfohlen).
-#define OTA_PASSWORD   "aendern!"
+#define OTA_PASSWORD   "ändern!"

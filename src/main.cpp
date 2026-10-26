@@ -361,7 +361,7 @@ bool decodeQingping(const std::string &sd, DeviceState &out) {
             case 0x02:
                 if (len >= 1) { out.battery = (float)(v[0] & 0x7F); found = true; }
                 break;
-            case 0x07:  // aeltere Qingping-Modelle
+            case 0x07:  // ältere Qingping-Modelle
             case 0x12:  // Air Monitor Lite (durch Roh-Frames bestätigt)
                 if (len >= 4) {
                     out.pm25 = v[0] | (v[1] << 8);
@@ -571,7 +571,7 @@ class ScanCallbacks : public NimBLEAdvertisedDeviceCallbacks {
         // MQTT_BASETOPIC leer -> Bereich deaktiviert
         if (strlen(MQTT_BASETOPIC) == 0) return;
         // Format FW 1.04.x: Manufacturer Data "88 EC" (Govee) + 6 Bytes
-        // [00, T2, T1, T0, Batt, 00]. Aeltere Firmwares legen die 6 Bytes
+        // [00, T2, T1, T0, Batt, 00]. Ältere Firmwares legen die 6 Bytes
         // stattdessen als Service Data an die UUID 0xEC88 - beides akzeptieren.
         std::string payload;
         if (dev->haveManufacturerData()) {
