@@ -14,10 +14,12 @@ Versionsnummern nach [SemVer](https://semver.org/).
   NVS-Eintraege oder Log). Bei leerem `MQTT_BASETOPIC` entfallen auch
   die Topics `govee/status` und `govee/version` (MQTT-Connect ohne
   Last Will).
-- OTA-Passwort wird aus der lokalen `platformio_local.ini` gelesen
-  (via `extra_configs`, durch `.gitignore` vom Repo ausgeschlossen;
-  Vorlage: `platformio_local.ini.example`) — Geheimnisse bleiben aus
-  dem oeffentlichen Repo draussen.
+- OTA-Passwort-Workaround: der espressif32-Builder haengt die eigenen
+  `upload_flags` beim espota-Protokoll nicht an (auth bleibt leer,
+  "Authentication Failed") — das Post-Script `ota_auth.py` liest das
+  Passwort aus der lokalen `platformio_local.ini` (durch `.gitignore`
+  vom Repo ausgeschlossen; Vorlage: `platformio_local.ini.example`)
+  und haengt es an.
 - README: OTA-Upload mit IP statt Hostname (PlatformIO waehlt bei
   Hostnamen sonst faelschlich `esptool` und bricht ab).
 
