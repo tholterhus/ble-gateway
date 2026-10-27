@@ -199,7 +199,16 @@ void loadBrushes() {
     String reg = prefs.getString("brushes", "");
     if (!reg.length()) return;
 
-    Serial.println("Bekannte Bürsten (aus NVS):");
+    // Überdimensionierte Registry (aus der Bug-Phase) verwerfen — die
+    // Bürsten lernen sich in Minuten neu, das spart den Boot-Spam.
+    if (reg.length() > 2000) {
+        Serial.printf("Registry überdimensioniert (%u Zeichen) — wird geleert.\n",
+                      (unsigned)reg.length());
+        prefs.remove("brushes");
+        return;
+    }
+
+    int loaded = 0;
     int start = 0;
     while (start < (int)reg.length()) {
         int comma = reg.indexOf(',', start);
@@ -209,20 +218,17 @@ void loadBrushes() {
         if (eq > 0) {
             std::string mac(entry.substring(0, eq).c_str());
             std::string name = entry.substring(eq + 1).c_str();
-            // Bereinigung: nur echte Bürsten behalten (Name oder Präfix)
             bool isBrush = (name.find("Oclean") != std::string::npos) ||
                            (mac.rfind("70:28:45:", 0) == 0);
-            if (!isBrush) {
-                Serial.printf("  aussortiert (keine Bürste): %s\n", mac.c_str());
-                continue;
+            if (isBrush) {
+                BrushState &b = brushes[mac];
+                b.name = name;
+                loaded++;
             }
-            BrushState &b = brushes[mac];
-            b.name = name;
-            Serial.printf("  %s  (%s)\n",
-                          brushIdFor(mac, b.name).c_str(), mac.c_str());
         }
         start = comma + 1;
     }
+    Serial.printf("Bürsten geladen: %d\n", loaded);
 }
 
 void brushPublish() {  // loop-Kontext
