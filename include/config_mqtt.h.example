@@ -34,6 +34,11 @@
 // (der H5075 sendet ~2x/s; nur Änderungen werden gemeldet)
 #define MIN_PUBLISH_INTERVAL_S  10
 
+// Herzschlag: alle N Sekunden alle Werte erneut senden, auch ohne
+// Änderung — verhindert Lücken in Grafana-Graphen bei stabiler
+// Raumluft. 0 = aus. (600 = alle 10 Minuten, wie im Heizungs-Monitor.)
+#define FORCE_INTERVAL_S       600
+
 // ---- Zahnbürsten-Beobachtung (Oclean) ----
 // Zählt BLE-Frames von 'Oclean'-Geräten (erkannt über den Namen
 // oder den beobachteten MAC-Präfix 70:28:45:). Je Bürste ein eigener

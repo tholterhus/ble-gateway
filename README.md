@@ -116,8 +116,9 @@ deine beiden `config`-Dateien bleiben unberührt.
 
 `XXXX` = letzte 4 Hex-Stellen der MAC-Adresse (Govee benennt seine
 Geräte in der App genauso). Alle Werte werden mit Retain gepublished
-und nur bei Änderung über der Glättungsschwelle gesendet (Batterie/RSSI
-laufen passiv mit).
+und bei Änderung über der Glättungsschwelle gesendet — plus Herzschlag
+alle 10 Minuten (`FORCE_INTERVAL_S`), damit Grafana keine Lücken sieht
+(Batterie/RSSI laufen passiv mit).
 
 ## Einstellungen
 

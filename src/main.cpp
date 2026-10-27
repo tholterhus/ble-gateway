@@ -454,8 +454,12 @@ void applyReading(const std::string &mac, DeviceKind kind, const DeviceState &r)
         aenderungGenug(st.pm25,        r.pm25,        SMOOTH_PM_PCT,    SMOOTH_PM_MIN)    ||
         aenderungGenug(st.pm10,        r.pm10,        SMOOTH_PM_PCT,    SMOOTH_PM_MIN)    ||
         aenderungGenug(st.light,       r.light,       SMOOTH_LIGHT_PCT, SMOOTH_LIGHT_MIN);
-    // Nur echte Messwert-Änderungen (oder die erste Lesung) publizieren.
-    if (changed || isnan(st.temperature)) {
+    // Messwert-Änderungen, die erste Lesung oder der Zwangs-Update-
+    // Herzschlag (FORCE_INTERVAL_S, 0 = aus) führen zum Publish —
+    // damit gibt es in Grafana keine Lücken bei stabiler Raumluft.
+    bool zwangsUpdate = (FORCE_INTERVAL_S > 0 &&
+                         millis() - st.lastPublish >= (uint32_t)FORCE_INTERVAL_S * 1000UL);
+    if (changed || isnan(st.temperature) || zwangsUpdate) {
         st.temperature = r.temperature;
         st.humidity    = r.humidity;
         st.battery     = r.battery;

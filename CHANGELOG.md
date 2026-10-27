@@ -4,6 +4,15 @@ Alle relevanten Änderungen dieses Projekts werden hier dokumentiert.
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/),
 Versionsnummern nach [SemVer](https://semver.org/).
 
+## [1.3.1] - 2026-10-27
+
+### Added
+
+- Zwangs-Update-Herzschlag zurück (Prinzip `zwangsUpdatePruefen()` im
+  Heizungs-Monitor): alle `FORCE_INTERVAL_S` Sekunden (Standard 600 =
+  10 Minuten) werden alle Werte erneut gesendet, auch ohne Änderung —
+  keine Lücken mehr in Grafana-Graphen. 0 = aus.
+
 ## [1.3.0] - 2026-10-27
 
 ### Added
