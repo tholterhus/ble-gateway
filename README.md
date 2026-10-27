@@ -120,15 +120,13 @@ laufen passiv mit).
 - `include/config.h` — WLAN, Hostname, LED, OTA-Passwort
 - `include/config_mqtt.h` — Broker, Topic-Pfade, Sende-Intervalle.
   - **Glättung:** Werte werden nur neu gesendet, wenn sie sich um die
-  in  definierten Schwellen (Prozent des alten Werts und
-  absoluter Mindestbetrag) ändern — kein 0,1-Grad-Flackern mehr in den
+  in `SMOOTH_*` definierten Schwellen ändern (Prozent des alten Werts
+  und absoluter Mindestbetrag) — kein 0,1-Grad-Flackern mehr in den
   Graphen. 0 % = nur Mindestbetrag.
--  — Broker, Topic-Pfade, Sende-Intervalle.
-  **Jeder Monitoring-Bereich lässt sich einzeln abschalten:** den
-  zugehörigen Topic-Pfad (`MQTT_BASETOPIC`, `MQTT_TOPIC_QINGPING`,
-  `MQTT_TOPIC_OCLEAN`) auf `""` setzen — dann wird der Bereich
-  komplett übersprungen (auch keine NVS-Einträge, kein Logspam).
-  Standard: alle drei aktiv.
+  - **Bereiche abschalten:** den zugehörigen Topic-Pfad
+  (`MQTT_BASETOPIC`, `MQTT_TOPIC_QINGPING`, `MQTT_TOPIC_OCLEAN`) auf
+  `""` setzen — dann wird der Bereich komplett übersprungen (auch
+  keine NVS-Einträge, kein Logspam). Standard: alle drei aktiv.
 - `src/main.cpp` (oberster Block) — Debug-Logzeilen einzeln
   zuschaltbar: `[ADV]` (alle BLE-Geräte im Funkraum), `[BLE-Stat]`
   (Empfangszahlen), `[QP-Roh]`/`[BR-Roh]` (Rohdaten von Qingping/
