@@ -13,6 +13,7 @@
 #include <NimBLEDevice.h>
 #include <Preferences.h>
 #include <set>
+#include <time.h>
 
 #include "config.h"
 #include "config_mqtt.h"
@@ -39,6 +40,7 @@ WiFiClient   wifiClient;
 PubSubClient mqtt(wifiClient);
 SemaphoreHandle_t stateMutex;
 Preferences  prefs;   // NVS: persistente Geräte-Liste
+uint32_t     rebootCount = 0;
 
 // ------------------------------------------------------------
 // Govee-Dekodierung (H5075/H5077, Format wie H5072, s. ble_monitor)
@@ -142,12 +144,11 @@ bool isToothbrushFrame(NimBLEAdvertisedDevice *dev) {
     std::string name = dev->haveName() ? dev->getName() : "";
     if (name.find("Oclean") != std::string::npos) return true;
     std::string mac = dev->getAddress().toString();
-    if (mac.rfind("70:28:45:", 0) == 0) return true;  // Oclean-Präfix (beobachtet)
-    NimBLEUUID feaf((uint16_t)0xFEAF);
-    for (uint8_t i = 0; i < dev->getServiceDataCount(); i++) {
-        if (dev->getServiceDataUUID(i) == feaf) return true;
-    }
-    return false;
+    // Nur der Name und der beobachtete MAC-Präfix gelten als Bürste.
+    // Xiaomi-0xFEAF-Frames (die N0xx-Geräte) zählen bewusst NICHT mehr:
+    // sie sind keine Bürsten (Nutzer-Beobachtung 10/2026: nur 3 sichtbare
+    // Geräte, alle mit Oclean-Namen).
+    return mac.rfind("70:28:45:", 0) == 0;
 }
 
 String brushIdFor(const std::string &mac, const std::string &name) {
@@ -193,8 +194,16 @@ void loadBrushes() {
         int eq = entry.indexOf('=');
         if (eq > 0) {
             std::string mac(entry.substring(0, eq).c_str());
+            std::string name = entry.substring(eq + 1).c_str();
+            // Bereinigung: nur echte Bürsten behalten (Name oder Präfix)
+            bool isBrush = (name.find("Oclean") != std::string::npos) ||
+                           (mac.rfind("70:28:45:", 0) == 0);
+            if (!isBrush) {
+                Serial.printf("  aussortiert (keine Bürste): %s\n", mac.c_str());
+                continue;
+            }
             BrushState &b = brushes[mac];
-            b.name = entry.substring(eq + 1).c_str();
+            b.name = name;
             Serial.printf("  %s  (%s)\n",
                           brushIdFor(mac, b.name).c_str(), mac.c_str());
         }
@@ -527,6 +536,8 @@ void mqttConnect() {
             // (z. B. "Software reset", "Brownout", "Exception", "Task watchdog")
             mqtt.publish((String(MQTT_BASETOPIC) + "/reset").c_str(),
                          resetReasonText().c_str(), true);
+            mqtt.publish((String(MQTT_BASETOPIC) + "/reboots").c_str(),
+                         String(rebootCount).c_str(), true);
         }
     } else {
         Serial.printf("MQTT fehlgeschlagen (rc=%d), wird weiter versucht ...\n",
@@ -755,10 +766,14 @@ void setup() {
     stateMutex = xSemaphoreCreateMutex();
 
     prefs.begin("govee", false);
+    rebootCount = prefs.getUInt("reboots", 0) + 1;   // persistenter Neustart-Zähler
+    prefs.putUInt("reboots", rebootCount);
     loadKnownDevices();
     if (strlen(MQTT_TOPIC_OCLEAN) > 0) loadBrushes();
 
     connectWiFi();
+    // Zeit per NTP (FritzBox zuerst, Fallback Pool); Zone Europa/Berlin
+    configTzTime("CET-1CEST,M3.5.0,M10.5.0/3", "fritz.box", "pool.ntp.org");
     mqtt.setServer(MQTT_SERVER, MQTT_PORT);
     mqtt.setBufferSize(512);
     mqttConnect();
@@ -806,12 +821,22 @@ void loop() {
     mqtt.loop();
     ArduinoOTA.handle();
 
-    // Diagnose: freier Heap alle 60 s (Leck-Erkennung per MQTT)
-    static uint32_t lastHeap = 0;
-    if (mqtt.connected() && millis() - lastHeap > 60000UL) {
-        lastHeap = millis();
+    // Diagnose alle 60 s: Heap, Uptime, Uhrzeit (falls NTP synchron)
+    static uint32_t lastDiag = 0;
+    if (mqtt.connected() && millis() - lastDiag > 60000UL) {
+        lastDiag = millis();
         mqtt.publish((String(MQTT_BASETOPIC) + "/heap").c_str(),
                      String(ESP.getFreeHeap()).c_str(), true);
+        mqtt.publish((String(MQTT_BASETOPIC) + "/uptime_s").c_str(),
+                     String(millis() / 1000UL).c_str(), false);
+        time_t jetzt = time(nullptr);
+        if (jetzt > 1600000000L) {  // NTP hat synchronisiert
+            struct tm tmInfo;
+            localtime_r(&jetzt, &tmInfo);
+            char buf[24];
+            strftime(buf, sizeof(buf), "%d.%m.%Y %H:%M:%S", &tmInfo);
+            mqtt.publish((String(MQTT_BASETOPIC) + "/zeit").c_str(), buf, false);
+        }
     }
 
     if (strlen(MQTT_TOPIC_OCLEAN) > 0) brushPublish();

@@ -70,7 +70,7 @@ CHANGELOG dokumentieren den Weg inklusive Irrwege.
 |---|---|
 | Govee H5075 / H5077 | Temperatur, Luftfeuchte, Batterie, RSSI |
 | Qingping Air Monitor Lite | Temperatur, Feuchte, CO₂, PM2.5, PM10, RSSI |
-| Oclean-Zahnbürsten | Frames/min + RSSI je Bürste |
+| Oclean-Zahnbürsten | Frames/min + RSSI je Bürste (Namen oder MAC-Präfix; Xiaomi-0xFEAF-Sender werden nicht gezählt) |
 
 ## Schnellstart (ca. 10 Minuten)
 
@@ -97,6 +97,10 @@ deine beiden `config`-Dateien bleiben unberührt.
 |---|---|
 | `govee/status` | `online`/`offline` (Last Will des Gateways) |
 | `govee/version` | Firmware-Version (retained) |
+| `govee/zeit` | Lokale Uhrzeit (NTP, Europa/Berlin), alle 60 s |
+| `govee/uptime_s` | Laufzeit des Gateways in Sekunden |
+| `govee/reboots` | Neustart-Zähler (NVS-persistiert) |
+| `govee/heap` / `govee/reset` | Diagnose: freier Heap, Grund des letzten Neustarts |
 | `govee/H5075_XXXX/temperature` | Grad C |
 | `govee/H5075_XXXX/humidity` | rel. Feuchte % |
 | `govee/H5075_XXXX/battery` | Batterie % |

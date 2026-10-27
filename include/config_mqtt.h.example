@@ -35,8 +35,9 @@
 #define MIN_PUBLISH_INTERVAL_S  10
 
 // ---- Zahnbürsten-Beobachtung (Oclean) ----
-// Zählt BLE-Frames von 'Oclean'-Geräten, Xiaomi-0xFEAF-Frames und
-// dem Oclean-MAC-Präfix. Je Bürste ein eigener Ordner (Modellname +
+// Zählt BLE-Frames von 'Oclean'-Geräten (erkannt über den Namen
+// oder den beobachteten MAC-Präfix 70:28:45:). Je Bürste ein eigener
+// Ordner (Modellname +
 // letzte 4 MAC-Stellen):
 //   oclean/adv_pro_min              Summe aller Bürsten
 //   oclean/Oclean_X_9672/adv_pro_min  je Bürste (nur bei Änderung)

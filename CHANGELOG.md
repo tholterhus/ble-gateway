@@ -4,6 +4,23 @@ Alle relevanten Änderungen dieses Projekts werden hier dokumentiert.
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/),
 Versionsnummern nach [SemVer](https://semver.org/).
 
+## [1.3.0] - 2026-10-27
+
+### Added
+
+- Eigenüberwachung per MQTT: `govee/zeit` (lokale Uhrzeit, NTP über
+  FritzBox/Pool, Zone Europa/Berlin), `govee/uptime_s` (Laufzeit in
+  Sekunden) und `govee/reboots` (Neustart-Zähler, im NVS persistiert —
+  überlebt Neustart und Reflash). Alle 60 s aktualisiert.
+
+### Fixed
+
+- Bürsten-Erkennung korrigiert: Die Xiaomi-0xFEAF-Geräte (N0xx-Namen)
+  sind KEINE Zahnbürsten (Nutzer-Beobachtung: nur 3 sichtbare Geräte,
+  alle mit Oclean-Namen) und werden nicht mehr gezählt. Erkannt werden
+  nur Geräte mit "Oclean" im Namen oder dem MAC-Präfix 70:28:45:.
+  Altlasten im NVS werden beim Boot aussortiert.
+
 ## [1.2.0] - 2026-10-27
 
 ### Added
