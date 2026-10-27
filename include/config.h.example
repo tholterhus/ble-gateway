@@ -10,7 +10,7 @@
 #define WIFI_PASSWORD  "DEIN_WLAN_PASSWORT"
 
 // Hostname im Netzwerk (DHCP)
-#define HOSTNAME       "ble-gateway"
+#define HOSTNAME       "esp32-ble-gateway"
 
 // Blaue Onboard-LED (GPIO 8, active-LOW) als Sende-Bestätigung:
 //   1 = dunkel, blitzt kurz bei jedem Messwert-Publish

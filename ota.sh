@@ -28,7 +28,7 @@ if [ -z "$TARGET" ]; then
 fi
 
 if [ -z "$TARGET" ]; then
-    echo "Gerät nicht gefunden (ble-gateway.local / ble-gateway.at.home probiert)."
+    echo "Gerät nicht gefunden — IP explizit angeben: ./ota.sh 192.168.x.x"
     echo "IP explizit angeben: ./ota.sh 192.168.178.251"
     exit 1
 fi

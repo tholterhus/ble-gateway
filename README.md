@@ -148,7 +148,7 @@ Gerätenamen auf und ruft PlatformIO mit der IP auf):
 
 Direkt per PlatformIO:
 
-    pio run -t upload --upload-port ble-gateway.local
+    pio run -t upload --upload-port esp32-ble-gateway.local
 
 (statt `.local` geht auch die IP-Adresse; Passwort = `OTA_PASSWORD`).
 **IP statt Hostname empfohlen:** PlatformIO wählt nur bei einer IP

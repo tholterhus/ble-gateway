@@ -773,7 +773,7 @@ void setup() {
 
     connectWiFi();
     // Zeit per NTP (FritzBox zuerst, Fallback Pool); Zone Europa/Berlin
-    configTzTime("CET-1CEST,M3.5.0,M10.5.0/3", "fritz.box", "pool.ntp.org");
+    configTzTime("CET-1CEST,M3.5.0,M10.5.0/3", NTP_SERVER_1, NTP_SERVER_2);
     mqtt.setServer(MQTT_SERVER, MQTT_PORT);
     mqtt.setBufferSize(512);
     mqttConnect();
