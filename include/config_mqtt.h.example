@@ -46,3 +46,22 @@
 // Motor läuft - ein "wird benutzt"-Signal ist per passivem BLE-Mithören
 // nicht vorhanden (daher gibt es bewusst kein 'aktiv'-Topic).
 #define BRUSH_WINDOW_S          60  // Zählfenster in Sekunden
+// ---- Glättung (Prinzip wie im Heizungs-Monitor 2xDalles) ----
+// Ein Wert wird nur dann neu gepublished, wenn er sich seit der
+// letzten Veröffentlichung um mindestens X % des alten Werts UND
+// mindestens den absoluten Mindestwert geändert hat. Das unterdrückt
+// Flackern (0,1-Grad-Sprünge, PM-Schwankungen zwischen 1 und 2) und
+// liefert ruhige Graphen; echte Drift läuft mit leichtem Abstand
+// weiter durch. 0 % = es gilt nur der absolute Mindestwert.
+#define SMOOTH_TEMP_PCT     1.0   // % (bei 22 °C: 0,22 °C)
+#define SMOOTH_TEMP_MIN     0.2   // °C
+#define SMOOTH_HUM_PCT      1.0   // %
+#define SMOOTH_HUM_MIN      0.5   // %
+#define SMOOTH_BATT_PCT     2.0   // %
+#define SMOOTH_BATT_MIN     2.0   // %
+#define SMOOTH_CO2_PCT      2.0   // % (bei 800 ppm: 16 ppm)
+#define SMOOTH_CO2_MIN      10.0  // ppm
+#define SMOOTH_PM_PCT       50.0  // % (PM-Werte sind klein, Prozent allein greift kaum)
+#define SMOOTH_PM_MIN       2.0   // µg/m³ (unterdrückt das 1-2-Flackern)
+#define SMOOTH_LIGHT_PCT    5.0   // %
+#define SMOOTH_LIGHT_MIN    10.0  // Lux

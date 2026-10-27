@@ -4,6 +4,18 @@ Alle relevanten Änderungen dieses Projekts werden hier dokumentiert.
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/),
 Versionsnummern nach [SemVer](https://semver.org/).
 
+## [1.2.0] - 2026-10-27
+
+### Added
+
+- Wert-Glättung nach dem Prinzip des Heizungs-Monitors (2xDalles):
+  ein Wert wird nur neu gepublished, wenn er sich seit der letzten
+  Veröffentlichung um mindestens X % des alten Werts UND einen
+  absoluten Mindestbetrag geändert hat (SMOOTH_* in
+  include/config_mqtt.h). Unterdrückt das Flackern von PM2.5/PM10
+  (1↔2 µg/m³) und der Temperatur (0,1 °C) und liefert ruhige
+  Graphen; Schwellwerte je Werttyp konfigurierbar.
+
 ## [1.1.1] - 2026-10-27
 
 ### Added

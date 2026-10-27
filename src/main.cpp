@@ -386,7 +386,22 @@ bool decodeQingping(const std::string &sd, DeviceState &out) {
 }
 
 // ------------------------------------------------------------
-// Lesung in den Geräte-Zustand übernehmen (thread-sicher)
+// Glättungs-Prüfung (Prinzip wie im Heizungs-Monitor 2xDalles):
+// senden, wenn die Änderung mindestens pct % des alten Werts UND
+// mindestens minDelta beträgt. NaN-Werte lösen nie aus; der erste
+// Wert überhaupt wird immer gesendet.
+// ------------------------------------------------------------
+bool aenderungGenug(float alterWert, float neuerWert, float pct, float minDelta) {
+    if (isnan(neuerWert)) return false;   // kein gültiger Wert -> nie
+    if (isnan(alterWert)) return true;    // erster Wert überhaupt
+    if (pct <= 0.0f) return fabsf(neuerWert - alterWert) >= minDelta;
+    float schwelle = fabsf(alterWert) * pct / 100.0f;
+    if (schwelle < minDelta) schwelle = minDelta;
+    return fabsf(neuerWert - alterWert) >= schwelle;
+}
+
+// ------------------------------------------------------------
+// Lesung in den Geraete-Zustand uebernehmen (thread-sicher)
 // ------------------------------------------------------------
 void applyReading(const std::string &mac, DeviceKind kind, const DeviceState &r) {
     xSemaphoreTake(stateMutex, portMAX_DELAY);
@@ -396,15 +411,20 @@ void applyReading(const std::string &mac, DeviceKind kind, const DeviceState &r)
     st.kind = kind;
     st.rssi = r.rssi;
 
-    // Nur echte Messwerte lösen ein MQTT-Update aus. Batterie- und
-    // RSSI-Änderungen werden stillschweigend übernommen und laufen mit
-    // der nächsten Messwert-Änderung (oder dem Herzschlag) mit.
-    bool changed = (r.temperature != st.temperature) ||
-                   (r.humidity    != st.humidity) ||
-                   (r.co2         != st.co2) ||
-                   (r.pm25        != st.pm25) ||
-                   (r.pm10        != st.pm10) ||
-                   (r.light       != st.light);
+    // Nur echte Messwerte lösen ein MQTT-Update aus — mit Glättung nach
+    // dem Prinzip des Heizungs-Monitors: Änderung mindestens X % des
+    // alten Werts UND mindestens der absolute Mindestwert (SMOOTH_*).
+    // Unterdrückt Flackern (0,1-Grad-Sprünge, PM-Schwankungen 1↔2),
+    // echte Drift läuft mit leichtem Abstand weiter durch. NaN löst
+    // nie aus; der erste Wert überhaupt wird immer gesendet.
+    bool changed =
+        aenderungGenug(st.temperature, r.temperature, SMOOTH_TEMP_PCT,  SMOOTH_TEMP_MIN)  ||
+        aenderungGenug(st.humidity,    r.humidity,    SMOOTH_HUM_PCT,   SMOOTH_HUM_MIN)   ||
+        aenderungGenug(st.battery,     r.battery,     SMOOTH_BATT_PCT,  SMOOTH_BATT_MIN)  ||
+        aenderungGenug(st.co2,         r.co2,         SMOOTH_CO2_PCT,   SMOOTH_CO2_MIN)   ||
+        aenderungGenug(st.pm25,        r.pm25,        SMOOTH_PM_PCT,    SMOOTH_PM_MIN)    ||
+        aenderungGenug(st.pm10,        r.pm10,        SMOOTH_PM_PCT,    SMOOTH_PM_MIN)    ||
+        aenderungGenug(st.light,       r.light,       SMOOTH_LIGHT_PCT, SMOOTH_LIGHT_MIN);
     // Nur echte Messwert-Änderungen (oder die erste Lesung) publizieren.
     if (changed || isnan(st.temperature)) {
         st.temperature = r.temperature;

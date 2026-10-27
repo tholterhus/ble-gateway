@@ -112,12 +112,18 @@ deine beiden `config`-Dateien bleiben unberührt.
 
 `XXXX` = letzte 4 Hex-Stellen der MAC-Adresse (Govee benennt seine
 Geräte in der App genauso). Alle Werte werden mit Retain gepublished
-und nur bei Änderung gesendet (Batterie/RSSI laufen passiv mit).
+und nur bei Änderung über der Glättungsschwelle gesendet (Batterie/RSSI
+laufen passiv mit).
 
 ## Einstellungen
 
 - `include/config.h` — WLAN, Hostname, LED, OTA-Passwort
 - `include/config_mqtt.h` — Broker, Topic-Pfade, Sende-Intervalle.
+  - **Glättung:** Werte werden nur neu gesendet, wenn sie sich um die
+  in  definierten Schwellen (Prozent des alten Werts und
+  absoluter Mindestbetrag) ändern — kein 0,1-Grad-Flackern mehr in den
+  Graphen. 0 % = nur Mindestbetrag.
+-  — Broker, Topic-Pfade, Sende-Intervalle.
   **Jeder Monitoring-Bereich lässt sich einzeln abschalten:** den
   zugehörigen Topic-Pfad (`MQTT_BASETOPIC`, `MQTT_TOPIC_QINGPING`,
   `MQTT_TOPIC_OCLEAN`) auf `""` setzen — dann wird der Bereich
