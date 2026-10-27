@@ -420,6 +420,27 @@ void applyReading(const std::string &mac, DeviceKind kind, const DeviceState &r)
 }
 
 // ------------------------------------------------------------
+// Grund des letzten Neustarts als lesbarer Text (IDF-Enum -> String)
+// ------------------------------------------------------------
+#include <esp_system.h>
+
+String resetReasonText() {
+    switch (esp_reset_reason()) {
+        case ESP_RST_POWERON:    return "Einschalten";
+        case ESP_RST_EXT:        return "Externer Reset-Pin";
+        case ESP_RST_SW:         return "Software-Reset (z. B. OTA)";
+        case ESP_RST_PANIC:      return "Absturz (Exception/Panic)";
+        case ESP_RST_INT_WDT:    return "Interrupt-Watchdog";
+        case ESP_RST_TASK_WDT:   return "Task-Watchdog";
+        case ESP_RST_WDT:        return "Sonstiger Watchdog";
+        case ESP_RST_BROWNOUT:   return "Brownout (Spannungseinbruch)";
+        case ESP_RST_DEEPSLEEP:  return "Deep-Sleep-Ende";
+        case ESP_RST_SDIO:       return "SDIO-Reset";
+        default:                 return "Unbekannt";
+    }
+}
+
+// ------------------------------------------------------------
 // WLAN / MQTT
 // ------------------------------------------------------------
 void connectWiFi() {
@@ -485,7 +506,7 @@ void mqttConnect() {
             // im Broker, WARUM der ESP gerade neu gestartet ist
             // (z. B. "Software reset", "Brownout", "Exception", "Task watchdog")
             mqtt.publish((String(MQTT_BASETOPIC) + "/reset").c_str(),
-                         ESP.getResetReason().c_str(), true);
+                         resetReasonText().c_str(), true);
         }
     } else {
         Serial.printf("MQTT fehlgeschlagen (rc=%d), wird weiter versucht ...\n",
