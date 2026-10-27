@@ -46,6 +46,8 @@
 // eingefrorener Payload und ändern weder Payload noch Rate, wenn der
 // Motor läuft - ein "wird benutzt"-Signal ist per passivem BLE-Mithören
 // nicht vorhanden (daher gibt es bewusst kein 'aktiv'-Topic).
+// Die Bürsten-Map ist auf MAX_BRUSHES (12) begrenzt — rotierende
+// MAC-Adressen können sie sonst unendlich wachsen lassen (Bug 10/2026).
 #define BRUSH_WINDOW_S          60  // Zählfenster in Sekunden
 // ---- Glättung (Prinzip wie im Heizungs-Monitor 2xDalles) ----
 // Ein Wert wird nur dann neu gepublished, wenn er sich seit der

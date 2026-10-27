@@ -19,7 +19,10 @@ Versionsnummern nach [SemVer](https://semver.org/).
   sind KEINE Zahnbürsten (Nutzer-Beobachtung: nur 3 sichtbare Geräte,
   alle mit Oclean-Namen) und werden nicht mehr gezählt. Erkannt werden
   nur Geräte mit "Oclean" im Namen oder dem MAC-Präfix 70:28:45:.
-  Altlasten im NVS werden beim Boot aussortiert.
+  Altlasten im NVS werden beim Boot aussortiert; die Bürsten-Map ist
+  auf 12 Einträge begrenzt (rotierende MAC-Adressen ließen sie
+  ungebremst wachsen — Ursache des Serial-Log-Spams und plausibler
+  Mitverursacher der Reboot-Schleife).
 
 ## [1.2.0] - 2026-10-27
 

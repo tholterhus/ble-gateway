@@ -129,7 +129,9 @@ String hexDump(const std::string &s, size_t maxBytes = 24) {
 // Ecosystem, bei uns die N0xx-Bürsten) und dem beobachteten
 // Oclean-MAC-Präfix. Je Bürste ein eigener MQTT-Ordner.
 // ------------------------------------------------------------
-#define BRUSH_TS_SIZE 32   // Ringpuffer: max. Frames je Bürste im Fenster
+#define BRUSH_TS_SIZE 32    // Ringpuffer: max. Frames je Bürste im Fenster
+#define MAX_BRUSHES 12       // harte Begrenzung: rotierende MACs dürfen die
+                             // Map/Registry nicht unendlich wachsen lassen
 
 struct BrushState {
     std::string name;                // beworbener Name (Modell)
@@ -165,6 +167,18 @@ String brushIdFor(const std::string &mac, const std::string &name) {
 
 void brushFrame(NimBLEAdvertisedDevice *dev, const std::string &mac) {  // BLE-Task
     xSemaphoreTake(stateMutex, portMAX_DELAY);
+    bool wasNew = (brushes.find(mac) == brushes.end());
+    if (wasNew && (int)brushes.size() >= MAX_BRUSHES) {
+        // Map voll: den am längsten unsichtigen Eintrag entfernen
+        std::string oldest;
+        uint32_t oldestAge = 0;
+        for (auto &kv : brushes) {
+            uint32_t last = kv.second.ts[(kv.second.write + BRUSH_TS_SIZE - 1) % BRUSH_TS_SIZE];
+            uint32_t age = millis() - last;
+            if (age > oldestAge) { oldestAge = age; oldest = kv.first; }
+        }
+        if (!oldest.empty()) brushes.erase(oldest);
+    }
     BrushState &b = brushes[mac];
     if (b.name.empty() && dev->haveName()) b.name = dev->getName();
     b.rssi = dev->getRSSI();
