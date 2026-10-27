@@ -481,6 +481,11 @@ void mqttConnect() {
             // Versionsnummer mit published (retained), damit sie im ioBroker ablesbar ist
             mqtt.publish((String(MQTT_BASETOPIC) + "/version").c_str(),
                          PROJECT_VERSION, true);
+            // Flugschreiber: Grund des letzten Neustarts (retained) — zeigt
+            // im Broker, WARUM der ESP gerade neu gestartet ist
+            // (z. B. "Software reset", "Brownout", "Exception", "Task watchdog")
+            mqtt.publish((String(MQTT_BASETOPIC) + "/reset").c_str(),
+                         ESP.getResetReason().c_str(), true);
         }
     } else {
         Serial.printf("MQTT fehlgeschlagen (rc=%d), wird weiter versucht ...\n",
@@ -759,6 +764,15 @@ void loop() {
     if (!mqtt.connected()) mqttConnect();
     mqtt.loop();
     ArduinoOTA.handle();
+
+    // Diagnose: freier Heap alle 60 s (Leck-Erkennung per MQTT)
+    static uint32_t lastHeap = 0;
+    if (mqtt.connected() && millis() - lastHeap > 60000UL) {
+        lastHeap = millis();
+        mqtt.publish((String(MQTT_BASETOPIC) + "/heap").c_str(),
+                     String(ESP.getFreeHeap()).c_str(), true);
+    }
+
     if (strlen(MQTT_TOPIC_OCLEAN) > 0) brushPublish();
     publishPending();
     delay(20);

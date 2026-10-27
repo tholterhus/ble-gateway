@@ -4,6 +4,18 @@ Alle relevanten Änderungen dieses Projekts werden hier dokumentiert.
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/),
 Versionsnummern nach [SemVer](https://semver.org/).
 
+## [1.1.1] - 2026-10-27
+
+### Added
+
+- Eigen-Beobachtung per MQTT: `govee/reset` (Grund des letzten
+  Neustarts, retained — z. B. "Software reset", "Brownout",
+  "Task watchdog") und `govee/heap` (freier Heap, alle 60 s). Damit
+  lässt sich eine Instabilität des Gateways direkt aus dem Broker
+  lesen, ohne Serial-Kabel. Hintergrund: Der Gateway startete im Test
+  sporadisch von selbst (identische Erst-Lesungs-Bursts im
+  MQTT-Log) — die Ursache wird mit dem Reset-Grund sichtbar.
+
 ## [1.1.0] - 2026-10-26
 
 ### Added
