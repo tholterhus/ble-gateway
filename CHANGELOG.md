@@ -4,6 +4,18 @@ Alle relevanten Änderungen dieses Projekts werden hier dokumentiert.
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/),
 Versionsnummern nach [SemVer](https://semver.org/).
 
+## [1.4.0] - 2026-10-27
+
+### Added
+
+- Sub-Dezimal-Auflösung über gleitenden Mittelwert (EMA) über alle
+  Rohframes: Temperatur/Feuchte werden mit 2 Nachkommastellen,
+  PM2.5/PM10 mit 1 Nachkommastelle gepublished — der 10-Minuten-
+  Herzschlag trägt damit echte Zwischenwerte (z. B. 23,21 → 23,23)
+  statt rundensbedingter Duplikate. EMA-Faktor via `EMA_ALPHA`
+  konfigurierbar. Die Glättungs-Deadband (SMOOTH_*) arbeitet jetzt auf
+  den EMA-Werten.
+
 ## [1.3.1] - 2026-10-27
 
 ### Added

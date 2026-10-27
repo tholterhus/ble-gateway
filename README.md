@@ -118,7 +118,10 @@ deine beiden `config`-Dateien bleiben unberührt.
 Geräte in der App genauso). Alle Werte werden mit Retain gepublished
 und bei Änderung über der Glättungsschwelle gesendet — plus Herzschlag
 alle 10 Minuten (`FORCE_INTERVAL_S`), damit Grafana keine Lücken sieht
-(Batterie/RSSI laufen passiv mit).
+(Batterie/RSSI laufen passiv mit). **Auflösung:** die Sensoren liefern
+nativ 0,1er-Schritte; der gleitende Mittelwert (`EMA_ALPHA`) erzeugt
+daraus die feinere Auflösung (Temperatur/Feuchte mit 2 Nachkommastellen),
+die der Herzschlag in die Graphen trägt.
 
 ## Einstellungen
 

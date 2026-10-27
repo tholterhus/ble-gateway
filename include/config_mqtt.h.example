@@ -54,7 +54,11 @@
 // Die Bürsten-Map ist auf MAX_BRUSHES (12) begrenzt — rotierende
 // MAC-Adressen können sie sonst unendlich wachsen lassen (Bug 10/2026).
 #define BRUSH_WINDOW_S          60  // Zählfenster in Sekunden
-// ---- Glättung (Prinzip wie im Heizungs-Monitor 2xDalles) ----
+// ---- Glättung + Auflösung (Prinzip wie im Heizungs-Monitor 2xDalles) ----
+// Die Sensoren liefern nativ 0,1er-Schritte; der gleitende Mittelwert
+// (EMA, alle Frames) erzeugt die feinere Auflösung, die der Herzschlag
+// dann mit 2 Nachkommastellen in Grafana sichtbar macht.
+#define EMA_ALPHA              0.08  // 0..1: je kleiner, desto glatter (Frames ~1-2/s)
 // Ein Wert wird nur dann neu gepublished, wenn er sich seit der
 // letzten Veröffentlichung um mindestens X % des alten Werts UND
 // mindestens den absoluten Mindestwert geändert hat. Das unterdrückt

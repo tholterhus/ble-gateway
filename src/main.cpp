@@ -88,13 +88,22 @@ bool decodeGovee(const uint8_t *d, GoveeReading &out) {
 enum DeviceKind { DEV_GOVEE = 0, DEV_QINGPING = 1 };
 
 struct DeviceState {
-    float    temperature = NAN;
+    float    temperature = NAN;   // zuletzt PUBLIZIERTER Wert
     float    humidity    = NAN;
     float    battery     = NAN;
     float    co2         = NAN;
     float    pm25        = NAN;
     float    pm10        = NAN;
     float    light       = NAN;
+    // Gleitender Mittelwert (EMA) über die Rohframes — liefert die
+    // Sub-Dezimal-Auflösung, die der Herzschlag in Graphen sichtbar macht:
+    float    emaTemperature = NAN;
+    float    emaHumidity    = NAN;
+    float    emaBattery     = NAN;
+    float    emaCo2         = NAN;
+    float    emaPm25        = NAN;
+    float    emaPm10        = NAN;
+    float    emaLight       = NAN;
     int      rssi        = 0;
     uint8_t  kind        = DEV_GOVEE;
     uint32_t lastPublish = 0;
@@ -440,33 +449,45 @@ void applyReading(const std::string &mac, DeviceKind kind, const DeviceState &r)
     st.kind = kind;
     st.rssi = r.rssi;
 
-    // Nur echte Messwerte lösen ein MQTT-Update aus — mit Glättung nach
-    // dem Prinzip des Heizungs-Monitors: Änderung mindestens X % des
-    // alten Werts UND mindestens der absolute Mindestwert (SMOOTH_*).
-    // Unterdrückt Flackern (0,1-Grad-Sprünge, PM-Schwankungen 1↔2),
-    // echte Drift läuft mit leichtem Abstand weiter durch. NaN löst
-    // nie aus; der erste Wert überhaupt wird immer gesendet.
+    // 1) EMA über die Rohframes aktualisieren: die Sensoren liefern
+    // nativ 0,1er-Schritte (Govee Wert/10, Qingping int16/10) — der
+    // Mittelwert vieler Frames erzeugt die feinere, für Herzschlag und
+    // Graphen nutzbare Auflösung.
+    auto emaUpdate = [](float &ema, float raw) {
+        if (isnan(raw)) return;
+        ema = isnan(ema) ? raw : ema + EMA_ALPHA * (raw - ema);
+    };
+    emaUpdate(st.emaTemperature, r.temperature);
+    emaUpdate(st.emaHumidity,    r.humidity);
+    emaUpdate(st.emaBattery,     r.battery);
+    emaUpdate(st.emaCo2,         r.co2);
+    emaUpdate(st.emaPm25,        r.pm25);
+    emaUpdate(st.emaPm10,        r.pm10);
+    emaUpdate(st.emaLight,       r.light);
+
+    // 2) Glättungs-Deadband auf den EMA-Werten (Prinzip Heizungs-Monitor:
+    // Änderung mindestens X % des alten Werts UND Mindestbetrag) —
+    // unterdrückt Flackern, echte Drift läuft durch.
     bool changed =
-        aenderungGenug(st.temperature, r.temperature, SMOOTH_TEMP_PCT,  SMOOTH_TEMP_MIN)  ||
-        aenderungGenug(st.humidity,    r.humidity,    SMOOTH_HUM_PCT,   SMOOTH_HUM_MIN)   ||
-        aenderungGenug(st.battery,     r.battery,     SMOOTH_BATT_PCT,  SMOOTH_BATT_MIN)  ||
-        aenderungGenug(st.co2,         r.co2,         SMOOTH_CO2_PCT,   SMOOTH_CO2_MIN)   ||
-        aenderungGenug(st.pm25,        r.pm25,        SMOOTH_PM_PCT,    SMOOTH_PM_MIN)    ||
-        aenderungGenug(st.pm10,        r.pm10,        SMOOTH_PM_PCT,    SMOOTH_PM_MIN)    ||
-        aenderungGenug(st.light,       r.light,       SMOOTH_LIGHT_PCT, SMOOTH_LIGHT_MIN);
-    // Messwert-Änderungen, die erste Lesung oder der Zwangs-Update-
-    // Herzschlag (FORCE_INTERVAL_S, 0 = aus) führen zum Publish —
-    // damit gibt es in Grafana keine Lücken bei stabiler Raumluft.
+        aenderungGenug(st.temperature, st.emaTemperature, SMOOTH_TEMP_PCT,  SMOOTH_TEMP_MIN)  ||
+        aenderungGenug(st.humidity,    st.emaHumidity,    SMOOTH_HUM_PCT,   SMOOTH_HUM_MIN)   ||
+        aenderungGenug(st.battery,     st.emaBattery,     SMOOTH_BATT_PCT,  SMOOTH_BATT_MIN)  ||
+        aenderungGenug(st.co2,         st.emaCo2,         SMOOTH_CO2_PCT,   SMOOTH_CO2_MIN)   ||
+        aenderungGenug(st.pm25,        st.emaPm25,        SMOOTH_PM_PCT,    SMOOTH_PM_MIN)    ||
+        aenderungGenug(st.pm10,        st.emaPm10,        SMOOTH_PM_PCT,    SMOOTH_PM_MIN)    ||
+        aenderungGenug(st.light,       st.emaLight,       SMOOTH_LIGHT_PCT, SMOOTH_LIGHT_MIN);
+    // 3) Publish: Änderung, erste Lesung oder Zwangs-Update-Herzschlag
+    // (FORCE_INTERVAL_S, 0 = aus) — keine Lücken in Grafana.
     bool zwangsUpdate = (FORCE_INTERVAL_S > 0 &&
                          millis() - st.lastPublish >= (uint32_t)FORCE_INTERVAL_S * 1000UL);
     if (changed || isnan(st.temperature) || zwangsUpdate) {
-        st.temperature = r.temperature;
-        st.humidity    = r.humidity;
-        st.battery     = r.battery;
-        st.co2         = r.co2;
-        st.pm25        = r.pm25;
-        st.pm10        = r.pm10;
-        st.light       = r.light;
+        st.temperature = st.emaTemperature;
+        st.humidity    = st.emaHumidity;
+        st.battery     = st.emaBattery;
+        st.co2         = st.emaCo2;
+        st.pm25        = st.emaPm25;
+        st.pm10        = st.emaPm10;
+        st.light       = st.emaLight;
         st.pending     = true;
     }
     xSemaphoreGive(stateMutex);
@@ -719,9 +740,9 @@ void publishPending() {
         String base = baseTopicFor(e.first, e.second.kind);
         char buf[16];
 
-        snprintf(buf, sizeof(buf), "%.1f", e.second.temperature);
+        snprintf(buf, sizeof(buf), "%.2f", e.second.temperature);
         mqtt.publish((base + "/temperature").c_str(), buf, MQTT_RETAIN);
-        snprintf(buf, sizeof(buf), "%.1f", e.second.humidity);
+        snprintf(buf, sizeof(buf), "%.2f", e.second.humidity);
         mqtt.publish((base + "/humidity").c_str(), buf, MQTT_RETAIN);
         if (!isnan(e.second.battery)) {
             snprintf(buf, sizeof(buf), "%.0f", e.second.battery);
@@ -736,11 +757,11 @@ void publishPending() {
                 mqtt.publish((base + "/co2").c_str(), buf, MQTT_RETAIN);
             }
             if (!isnan(e.second.pm25)) {
-                snprintf(buf, sizeof(buf), "%.0f", e.second.pm25);
+                snprintf(buf, sizeof(buf), "%.1f", e.second.pm25);
                 mqtt.publish((base + "/pm25").c_str(), buf, MQTT_RETAIN);
             }
             if (!isnan(e.second.pm10)) {
-                snprintf(buf, sizeof(buf), "%.0f", e.second.pm10);
+                snprintf(buf, sizeof(buf), "%.1f", e.second.pm10);
                 mqtt.publish((base + "/pm10").c_str(), buf, MQTT_RETAIN);
             }
             if (!isnan(e.second.light)) {
@@ -748,7 +769,7 @@ void publishPending() {
                 mqtt.publish((base + "/light").c_str(), buf, MQTT_RETAIN);
             }
 #if DEBUG_VAL
-            Serial.printf("MQTT -> %s: %.1f C | %.1f %% | CO2 %.0f | PM2.5 %.0f | PM10 %.0f | %d dBm\n",
+            Serial.printf("MQTT -> %s: %.2f C | %.2f %% | CO2 %.0f | PM2.5 %.1f | PM10 %.1f | %d dBm\n",
                           base.c_str(), e.second.temperature, e.second.humidity,
                           e.second.co2, e.second.pm25, e.second.pm10, e.second.rssi);
 #endif
